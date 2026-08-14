@@ -1,0 +1,41 @@
+Hematopass — componentes de terceros
+
+Este proyecto se publica bajo licencia MIT (ver LICENSE). Incorpora los
+siguientes componentes de terceros, identificados conforme al punto 11.1 de
+las bases del Hackatón en Salud INSN San Borja 2026.
+
+--------------------------------------------------------------------------
+Sistema de tokens de diseño — Odyssey Theme
+--------------------------------------------------------------------------
+Fuente:    https://github.com/treefarmstudio/odyssey-theme
+Autor:     Tree Farm Studio LLC
+Licencia:  MIT License
+Copyright (c) 2024 Treefarm Studio LLC
+
+Uso en este proyecto: NO se incluye código del tema. Se portó su
+arquitectura de variables CSS (tokens de color, tipografía fluida con
+clamp(), radios, transiciones) a un sistema propio, adaptado a dos
+superficies (clínica / cuidador). Ver docs/sistema-de-diseno.md.
+
+--------------------------------------------------------------------------
+Tipografía — Lato
+--------------------------------------------------------------------------
+Autor:     Łukasz Dziedzic (tyPoland)
+Licencia:  SIL Open Font License, Version 1.1
+Texto completo de la licencia: licenses/fonts/LATO-OFL.txt
+Archivos autoalojados en: src/fonts/lato-*.woff2
+
+--------------------------------------------------------------------------
+Tipografía — Roboto Serif
+--------------------------------------------------------------------------
+Autor:     Google Fonts / Ilya Ruderman, contribuidores
+Licencia:  Apache License, Version 2.0
+Texto completo de la licencia: licenses/fonts/ROBOTO-SERIF-APACHE2.txt
+Archivos autoalojados en: src/fonts/roboto-serif-*.woff2
+
+--------------------------------------------------------------------------
+Bibliotecas de software (npm)
+--------------------------------------------------------------------------
+Ver package.json para el listado completo de dependencias y sus versiones.
+Todas son de código abierto bajo licencias permisivas (MIT, Apache 2.0 o
+equivalentes) según se declara en sus respectivos paquetes en npm.

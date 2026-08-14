@@ -1,0 +1,39 @@
+{
+	# En SITE_ADDRESS=":80" (por defecto, para IP directa o localhost) Caddy
+	# sirve HTTP plano. Al fijar un dominio real (ej. hematopass.example.org)
+	# Caddy emite y renueva TLS automáticamente vía Let's Encrypt sin config
+	# adicional. Ver docs/despliegue.md.
+}
+
+{$SITE_ADDRESS} {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	# El service worker necesita su propio bloque, SIN "encode": comprimir lo
+	# fuerza a "Transfer-Encoding: chunked" sin Content-Length, y esa
+	# combinación rompe el algoritmo de registro de Service Worker en
+	# Chromium a través de proxies anidados ("An unknown error occurred
+	# when fetching the script"). Cache-Control: no-cache es además lo
+	# correcto para un SW — un navegador que sirviera una versión vieja en
+	# caché nunca vería las actualizaciones.
+	@sw path /sw.js
+	handle @sw {
+		header Cache-Control "no-cache"
+		header Service-Worker-Allowed "/"
+		reverse_proxy app:3000
+	}
+
+	handle {
+		encode zstd gzip
+		reverse_proxy app:3000
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

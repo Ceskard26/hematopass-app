@@ -1,0 +1,16 @@
+{
+  "name": "Hematopass",
+  "short_name": "Hematopass",
+  "description": "Ruta asistencial digital para hematología pediátrica",
+  "start_url": "/cuidador",
+  "scope": "/cuidador",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3efe6",
+  "theme_color": "#2c3e2d",
+  "lang": "es-PE",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

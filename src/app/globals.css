@@ -1,26 +1,193 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   HEMATOPASS — Sistema de tokens
+   Arquitectura portada de Odyssey Theme (Tree Farm Studio, MIT):
+   variables CSS en :root, sobreescritas por superficie vía [data-surface].
+   Ver docs/sistema-de-diseno.md para la justificación de cada valor.
+   ========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ---- Tipografía ---- */
+  --font-serif: "Roboto Serif", Georgia, serif;
+  --font-sans: "Lato", system-ui, -apple-system, sans-serif;
+
+  /* ---- Radio y transición (heredados de Odyssey, fluidos) ---- */
+  --shape-radius-sm: clamp(0.25rem, 0.2rem + 0.2vw, 0.375rem);
+  --shape-radius-md: clamp(0.5rem, 0.4rem + 0.4vw, 0.75rem);
+  --shape-radius-lg: clamp(0.75rem, 0.6rem + 0.6vw, 1.25rem);
+  --shape-radius-full: 999px;
+  --transition-base: 0.2s ease-in-out;
+
+  /* ---- Espaciado ---- */
+  --space-section: 3rem;
+  --width-max-clinical: 1440px;
+  --width-max-caregiver: 640px;
+
+  /* ==== Superficie CLÍNICA (default) — derivada de la paleta "ocean" ==== */
+  --surface-primary: #1556ac;
+  --surface-primary-ink: #ffffff;
+  --surface-bg: #fafafa;
+  --surface-1: #ffffff;
+  --surface-2: #eef1f6;
+  --surface-border: #e2e6eb;
+  --surface-text: #1a1a1a;
+  --surface-text-muted: #55606b;
+
+  /* Escala tipográfica clínica: densa. Base 14px. */
+  --surface-text-xs: clamp(0.72rem, 0.7rem + 0.1vw, 0.75rem);
+  --surface-text-sm: clamp(0.8rem, 0.78rem + 0.1vw, 0.8125rem);
+  --surface-text-base: clamp(0.85rem, 0.82rem + 0.15vw, 0.875rem);
+  --surface-text-md: clamp(0.95rem, 0.9rem + 0.25vw, 1rem);
+  --surface-text-lg: clamp(1.15rem, 1.05rem + 0.5vw, 1.25rem);
+  --surface-text-xl: clamp(1.45rem, 1.3rem + 0.75vw, 1.625rem);
+  --surface-text-xxl: clamp(1.8rem, 1.5rem + 1.5vw, 2.25rem);
 }
 
+/* ==== Superficie CUIDADOR — derivada de la paleta "earth" + acento "sand" ==== */
+[data-surface="caregiver"] {
+  --surface-primary: #2c3e2d;
+  --surface-primary-ink: #ffffff;
+  --surface-bg: #f3efe6;
+  --surface-1: #fbf8f2;
+  --surface-2: #e9e3d4;
+  --surface-border: #ddd5c0;
+  --surface-text: #22281f;
+  --surface-text-muted: #5f6b58;
+
+  /* Escala tipográfica del cuidador: amplia. Base 19px.
+     Se usa de pie, en un pasillo, con un niño en brazos, en un celular de
+     gama baja. Nunca por debajo de 16px. */
+  --surface-text-xs: clamp(0.85rem, 0.8rem + 0.2vw, 0.9375rem);
+  --surface-text-sm: clamp(0.95rem, 0.9rem + 0.25vw, 1rem);
+  --surface-text-base: clamp(1.1rem, 1rem + 0.4vw, 1.1875rem);
+  --surface-text-md: clamp(1.3rem, 1.15rem + 0.6vw, 1.5rem);
+  --surface-text-lg: clamp(1.7rem, 1.4rem + 1.2vw, 2rem);
+  --surface-text-xl: clamp(2.3rem, 1.8rem + 2vw, 2.75rem);
+  --surface-text-xxl: clamp(3rem, 2.2rem + 3.2vw, 3.75rem);
+}
+
+/* ==== Acento compartido: el naranja del sello. Igual en ambas superficies. ==== */
+:root {
+  --accent-sello: #e38a20;
+  --accent-sello-ink: #3a2308;
+  --accent-sello-light: #f7dfb8;
+  --accent-sello-dark: #a3610f;
+}
+
+/* ==== Estados de paso — semántica compartida, NUNCA solo color ====
+   Cada estado se acompaña de forma + ícono + etiqueta en los componentes.
+   Estos valores ya están verificados contra WCAG AA (ver docs/sistema-de-diseno.md). */
+:root {
+  --status-programado: #8a94a3;
+  --status-notificado: #1556ac;
+  --status-en-curso: #a15c00;
+  --status-completado: #256d3b;
+  --status-vencido: #b3492f;
+  --status-abandono: #8c2f1c;
+}
+
+/* ==== Puente a utilidades Tailwind v4 ====
+   @theme mapea estas variables a clases (bg-primary, text-surface-1, etc.)
+   Usa var() indirecto para que [data-surface] siga siendo runtime-switchable. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: var(--surface-primary);
+  --color-primary-ink: var(--surface-primary-ink);
+  --color-bg: var(--surface-bg);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--surface-border);
+  --color-text: var(--surface-text);
+  --color-text-muted: var(--surface-text-muted);
+
+  --color-sello: var(--accent-sello);
+  --color-sello-ink: var(--accent-sello-ink);
+  --color-sello-light: var(--accent-sello-light);
+  --color-sello-dark: var(--accent-sello-dark);
+
+  --color-status-programado: var(--status-programado);
+  --color-status-notificado: var(--status-notificado);
+  --color-status-en-curso: var(--status-en-curso);
+  --color-status-completado: var(--status-completado);
+  --color-status-vencido: var(--status-vencido);
+  --color-status-abandono: var(--status-abandono);
+
+  --font-family-serif: var(--font-serif);
+  --font-family-sans: var(--font-sans);
+
+  --text-xs: var(--surface-text-xs);
+  --text-sm: var(--surface-text-sm);
+  --text-base: var(--surface-text-base);
+  --text-md: var(--surface-text-md);
+  --text-lg: var(--surface-text-lg);
+  --text-xl: var(--surface-text-xl);
+  --text-xxl: var(--surface-text-xxl);
+
+  --radius-sm: var(--shape-radius-sm);
+  --radius-md: var(--shape-radius-md);
+  --radius-lg: var(--shape-radius-lg);
+  --radius-full: var(--shape-radius-full);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+* {
+  border-color: var(--surface-border);
+}
+
+html {
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--surface-bg);
+  color: var(--surface-text);
+  font-family: var(--font-sans);
+  font-size: var(--surface-text-base);
+  line-height: 1.5;
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h3 {
+  font-weight: 500;
+}
+
+/* Objetivo táctil mínimo en la superficie del cuidador (regla dura, ver
+   docs/sistema-de-diseno.md §8). Los <a> con apariencia de botón lo llevan
+   explícito vía la utilidad `min-h-12` de Tailwind (48px) en el propio
+   componente — un selector CSS genérico por atributo ARIA es frágil: un
+   <a role="button"> además rompe la semántica de navegación por teclado. */
+[data-surface="caregiver"] button {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* El color nunca comunica solo: reducir movimiento para quien lo pida. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Animación de estampado del sello (~420ms). Neutralizada arriba para
+   prefers-reduced-motion: se colapsa a un fundido casi instantáneo. */
+@keyframes hp-sello-estampar {
+  0% { transform: scale(2.2); opacity: 0; }
+  55% { transform: scale(0.88); opacity: 1; }
+  78% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.hp-sello-animar {
+  animation: hp-sello-estampar 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-origin: 50% 50%;
 }
