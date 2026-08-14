@@ -28,6 +28,14 @@ export default async function IngresarPage(props: PageProps<"/ingresar">) {
   return (
     <main className="flex-1 flex items-center justify-center px-6">
       <form action={ingresar} className="w-full max-w-sm">
+        <img
+          src="/brand-mark.png"
+          alt=""
+          aria-hidden="true"
+          width={48}
+          height={48}
+          className="h-12 w-12 rounded-full mb-4"
+        />
         <h1 className="font-serif text-xl mb-1">Personal clínico</h1>
         <p className="text-sm text-text-muted mb-6">
           Acceso para médicos, gestores de caso y ventanilla.

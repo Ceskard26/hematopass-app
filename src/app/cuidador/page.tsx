@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { sesionCuidadorValida } from "@/lib/cuidador-guard";
 import { ingresarComoCuidador } from "@/lib/actions-cuidador";
+import { IngresoCuidadorForm } from "@/components/ingreso-cuidador-form";
 
 const ERRORES: Record<string, string> = {
   vacio: "Escribe el código de tu pasaporte.",
@@ -21,39 +22,7 @@ export default async function CuidadorEntradaPage(props: PageProps<"/cuidador">)
 
   return (
     <main className="flex-1 flex items-center justify-center px-6 min-h-full">
-      <form action={ingresarComoCuidador} className="w-full max-w-sm text-center">
-        <p className="text-5xl mb-4" aria-hidden="true">
-          ⬡
-        </p>
-        <h1 className="font-serif text-xl mb-2">Bienvenido a Hematopass</h1>
-        <p className="text-base text-text-muted leading-relaxed mb-8">
-          Escribe el código de tu pasaporte. Está impreso en la tarjeta que te
-          dieron en Admisión.
-        </p>
-
-        {error && (
-          <p className="mb-4 rounded-md bg-status-vencido/10 border border-status-vencido/30 text-status-vencido text-sm px-3 py-2">
-            {error}
-          </p>
-        )}
-
-        <input
-          name="codigo"
-          type="text"
-          inputMode="text"
-          autoCapitalize="characters"
-          placeholder="HP-00001"
-          required
-          className="w-full text-center text-lg tracking-wide rounded-md border border-border bg-surface-1 px-4 py-3 mb-4 outline-none focus:ring-2 focus:ring-primary"
-        />
-
-        <button
-          type="submit"
-          className="w-full rounded-md bg-primary text-primary-ink py-3 text-base font-semibold transition-colors hover:opacity-90"
-        >
-          Ingresar
-        </button>
-      </form>
+      <IngresoCuidadorForm accion={ingresarComoCuidador} error={error} />
     </main>
   );
 }

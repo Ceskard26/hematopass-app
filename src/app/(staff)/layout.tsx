@@ -23,9 +23,19 @@ export default async function StaffLayout({ children }: { children: React.ReactN
   return (
     <div className="min-h-full flex">
       <aside className="w-56 shrink-0 border-r border-border bg-surface-1 flex flex-col">
-        <div className="px-5 py-5 border-b border-border">
-          <p className="font-serif text-md leading-tight">Hematopass</p>
-          <p className="text-xs text-text-muted mt-0.5">Personal clínico</p>
+        <div className="px-5 py-5 border-b border-border flex items-center gap-2.5">
+          <img
+            src="/brand-mark.png"
+            alt=""
+            aria-hidden="true"
+            width={32}
+            height={32}
+            className="h-8 w-8 rounded-full shrink-0"
+          />
+          <div>
+            <p className="font-serif text-md leading-tight">Hematopass</p>
+            <p className="text-xs text-text-muted mt-0.5">Personal clínico</p>
+          </div>
         </div>
         <nav className="flex-1 py-3">
           {items.map((item) => (
