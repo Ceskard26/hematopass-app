@@ -52,6 +52,7 @@ export function RegistrarContactoForm({ alertaId }: { alertaId: string }) {
         <select
           value={canal}
           onChange={(e) => setCanal(e.target.value)}
+          aria-label="Canal de contacto"
           className="rounded-md border border-border bg-surface-1 px-2 py-1.5 text-sm transition-shadow focus:ring-2 focus:ring-primary"
         >
           {CANALES.map((c) => (
@@ -63,6 +64,7 @@ export function RegistrarContactoForm({ alertaId }: { alertaId: string }) {
         <select
           value={resultado}
           onChange={(e) => setResultado(e.target.value)}
+          aria-label="Resultado del contacto"
           className="rounded-md border border-border bg-surface-1 px-2 py-1.5 text-sm transition-shadow focus:ring-2 focus:ring-primary"
         >
           {RESULTADOS.map((r) => (
@@ -76,6 +78,7 @@ export function RegistrarContactoForm({ alertaId }: { alertaId: string }) {
         value={nota}
         onChange={(e) => setNota(e.target.value)}
         placeholder="Nota (opcional)"
+        aria-label="Nota sobre el contacto"
         rows={2}
         className="w-full rounded-md border border-border bg-surface-1 px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary"
       />

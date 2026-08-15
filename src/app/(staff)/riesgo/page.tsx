@@ -2,6 +2,7 @@ import Link from "next/link";
 import { sincronizarAlertas } from "@/lib/risk-engine";
 import { listarAlertasActivas } from "@/lib/queries-riesgo";
 import { RegistrarContactoForm } from "@/components/registrar-contacto-form";
+import { DescartarAlertaButton } from "@/components/descartar-alerta-button";
 
 const SEVERIDAD_CFG: Record<string, { label: string; color: string; simbolo: string }> = {
   critica: { label: "Crítica", color: "var(--status-abandono)", simbolo: "▲▲" },
@@ -89,7 +90,10 @@ export default async function RiesgoPage() {
                   </ul>
                 )}
 
-                <RegistrarContactoForm alertaId={a.id} />
+                <div className="flex items-center gap-4">
+                  <RegistrarContactoForm alertaId={a.id} />
+                  <DescartarAlertaButton alertaId={a.id} />
+                </div>
               </div>
             );
           })}

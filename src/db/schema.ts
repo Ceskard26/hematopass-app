@@ -104,6 +104,7 @@ export const tipoEventoEnum = pgEnum("tipo_evento", [
   "qr_escaneado",
   "alerta_creada",
   "alerta_resuelta",
+  "alerta_descartada",
   "contacto_registrado",
   "resultado_solicitado",
   "resultado_listo",

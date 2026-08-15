@@ -16,6 +16,20 @@ function edadEnAnios(fechaNacimiento: string) {
   return edad;
 }
 
+// "reprogramado" y "no_asistio" no tienen token propio — reutilizan el color
+// de en_curso/vencido, igual que estado-badge.tsx. Construir el nombre de la
+// variable CSS a partir del estado (`--status-${estado}`) se rompe en
+// silencio para estos dos: la variable no existe y el borde queda sin color.
+const COLOR_ESTADO: Record<string, string> = {
+  programado: "var(--status-programado)",
+  notificado: "var(--status-notificado)",
+  en_curso: "var(--status-en-curso)",
+  completado: "var(--status-completado)",
+  vencido: "var(--status-vencido)",
+  reprogramado: "var(--status-en-curso)",
+  no_asistio: "var(--status-vencido)",
+};
+
 function formatearFecha(fecha: Date | string | null) {
   if (!fecha) return null;
   return new Date(fecha).toLocaleString("es-PE", {
@@ -92,7 +106,7 @@ export default async function FichaPacientePage(props: PageProps<"/clinico/[codi
                   )}
                   <span
                     className="absolute left-0 top-1 h-3.5 w-3.5 rounded-full border-2 bg-surface-1"
-                    style={{ borderColor: `var(--status-${paso.estado.replace("_", "-")})` }}
+                    style={{ borderColor: COLOR_ESTADO[paso.estado] ?? "var(--status-programado)" }}
                   />
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-medium">{paso.tituloClinico}</p>

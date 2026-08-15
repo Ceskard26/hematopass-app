@@ -69,3 +69,32 @@ export async function registrarContacto(input: RegistrarContactoInput) {
   revalidatePath("/riesgo");
   return nuevo;
 }
+
+/**
+ * "descartada" ya existe en el enum de `alerta` (src/db/schema.ts) desde el
+ * diseño original pero no tenía ningún camino en la UI para llegar a ese
+ * estado — sin esto, un falso positivo del motor de riesgo se queda en la
+ * bandeja para siempre o hay que mentir marcándolo "resuelta".
+ */
+export async function descartarAlerta(alertaId: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error("No autorizado.");
+
+  const ahora = new Date();
+  await db
+    .update(alerta)
+    .set({ estado: "descartada", resueltaEn: ahora })
+    .where(eq(alerta.id, alertaId));
+
+  await db.insert(evento).values({
+    entidadTipo: "alerta",
+    entidadId: alertaId,
+    tipo: "alerta_descartada",
+    actorId: session.user.id,
+    actorRol: session.user.rol,
+    origen: "web",
+    ocurridoEn: ahora,
+  });
+
+  revalidatePath("/riesgo");
+}

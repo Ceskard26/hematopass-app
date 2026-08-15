@@ -109,24 +109,37 @@ export async function evaluarRiesgo(): Promise<Hallazgo[]> {
     }
 
     // R4 · Resultado listo hace > R4_HORAS sin consulta de control posterior.
-    for (const r of p.resultados) {
-      if (r.estado !== "listo" || !r.listoEn) continue;
-      const horas = horasEntre(r.listoEn, ahora);
-      if (horas <= R4_HORAS) continue;
-      const hayConsultaFutura = pasos.some(
+    // Se agregan TODOS los huérfanos en un solo hallazgo por paciente: un
+    // Map keyed por pacienteId+regla solo puede quedarse con uno (ver
+    // sincronizarAlertas), así que empujar un hallazgo por resultado
+    // descartaba en silencio a todos menos el último.
+    const huerfanos = p.resultados.filter((r) => {
+      if (r.estado !== "listo" || !r.listoEn) return false;
+      if (horasEntre(r.listoEn, ahora) <= R4_HORAS) return false;
+      return !pasos.some(
         (x) =>
           x.tipo === "consulta" &&
           x.programadoPara &&
           new Date(x.programadoPara).getTime() > new Date(r.listoEn!).getTime()
       );
-      if (!hayConsultaFutura) {
-        hallazgos.push({
-          pacienteId: p.id,
-          regla: "R4_resultado_huerfano",
-          severidad: "media",
-          motivoTexto: `${r.tipo} listo hace ${Math.floor(horas / 24)} día(s), sin cita de control agendada.`,
-        });
-      }
+    });
+    if (huerfanos.length === 1) {
+      const r = huerfanos[0];
+      const dias = Math.floor(horasEntre(r.listoEn!, ahora) / 24);
+      hallazgos.push({
+        pacienteId: p.id,
+        regla: "R4_resultado_huerfano",
+        severidad: "media",
+        motivoTexto: `${r.tipo} listo hace ${dias} día(s), sin cita de control agendada.`,
+      });
+    } else if (huerfanos.length > 1) {
+      const tipos = huerfanos.map((r) => r.tipo).join(", ");
+      hallazgos.push({
+        pacienteId: p.id,
+        regla: "R4_resultado_huerfano",
+        severidad: "media",
+        motivoTexto: `${huerfanos.length} resultados listos sin cita de control agendada: ${tipos}.`,
+      });
     }
 
     // R5 · Viaje en riesgo — la única regla preventiva. Provincia + consulta

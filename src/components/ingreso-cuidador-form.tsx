@@ -72,7 +72,6 @@ export function IngresoCuidadorForm({
       )
       .then(() => setCamaraActiva(true))
       .catch((err) => {
-        // eslint-disable-next-line no-console
         console.error("No se pudo iniciar la cámara:", err?.name, err?.message);
         scannerRef.current = null; // libera el guard de doble-tap para permitir reintentar
         setErrorCamara("No pudimos acceder a la cámara. Revisa el permiso de cámara del navegador, o escribe el código abajo.");

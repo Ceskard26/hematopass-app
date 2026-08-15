@@ -75,7 +75,6 @@ export function QrScanner() {
       )
       .then(() => setCamaraActiva(true))
       .catch((err) => {
-        // eslint-disable-next-line no-console
         console.error("No se pudo iniciar la cámara:", err?.name, err?.message);
         scannerRef.current = null; // libera el guard de doble-tap para permitir reintentar
         setErrorCamara(
@@ -197,6 +196,7 @@ export function QrScanner() {
             value={codigoManual}
             onChange={(e) => setCodigoManual(e.target.value)}
             placeholder="Código de la ventanilla"
+            aria-label="Código de la ventanilla"
             className="flex-1 rounded-md border border-border bg-surface-1 px-3 py-2.5 text-sm outline-none transition-shadow focus:ring-2 focus:ring-primary"
           />
           <button
