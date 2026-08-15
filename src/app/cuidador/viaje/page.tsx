@@ -51,14 +51,25 @@ export default async function DeboViajarPage() {
       </Link>
 
       <div className="flex-1 flex flex-col items-center text-center pt-4">
-        <p className="text-6xl mb-4" style={{ color: cfg.color }} aria-hidden="true">
+        <p
+          className={`hp-in-pop text-6xl mb-4 ${viaje.estado === "rojo" ? "hp-pulse" : ""}`}
+          style={{ color: cfg.color }}
+          aria-hidden="true"
+        >
           {cfg.simbolo}
         </p>
-        <h1 className="font-serif text-xl mb-3">{cfg.titulo}</h1>
-        <p className="text-base text-text-muted leading-relaxed max-w-xs mb-8">{cfg.detalle}</p>
+        <h1 className="hp-in font-serif text-xl mb-3" style={{ animationDelay: "80ms" }}>
+          {cfg.titulo}
+        </h1>
+        <p className="hp-in text-base text-text-muted leading-relaxed max-w-xs mb-8" style={{ animationDelay: "140ms" }}>
+          {cfg.detalle}
+        </p>
 
         {viaje.resultadoPendiente && (
-          <div className="w-full max-w-xs rounded-lg border border-border bg-surface-1 p-4 mb-4 text-left">
+          <div
+            className="hp-in w-full max-w-xs rounded-lg border border-border bg-surface-1 p-4 mb-4 text-left"
+            style={{ animationDelay: "200ms" }}
+          >
             <p className="text-sm font-medium">{viaje.resultadoPendiente.tipo}</p>
             <p className="text-sm text-text-muted">
               Solicitado {formatearFecha(viaje.resultadoPendiente.solicitadoEn)}
@@ -67,7 +78,10 @@ export default async function DeboViajarPage() {
         )}
 
         {viaje.proximaConsulta?.programadoPara && (
-          <div className="w-full max-w-xs rounded-lg border border-border bg-surface-1 p-4 text-left">
+          <div
+            className="hp-in w-full max-w-xs rounded-lg border border-border bg-surface-1 p-4 text-left"
+            style={{ animationDelay: "250ms" }}
+          >
             <p className="text-sm font-medium">Tu próxima cita</p>
             <p className="text-sm text-text-muted">
               {formatearFecha(viaje.proximaConsulta.programadoPara)}

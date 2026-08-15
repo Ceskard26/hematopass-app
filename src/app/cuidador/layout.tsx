@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { leerSesionCuidador } from "@/lib/cuidador-session";
 import { ServiceWorkerRegistro } from "@/components/service-worker-registro";
 import { SincronizadorOffline } from "@/components/sincronizador-offline";
+import { NavCuidador } from "@/components/nav-cuidador";
 
 /**
  * Registro visual del cuidador: data-surface="caregiver" activa la paleta
@@ -21,37 +21,7 @@ export default async function CuidadorLayout({ children }: { children: React.Rea
       <SincronizadorOffline />
       <div className="flex-1 pb-20">{children}</div>
 
-      {sesion && (
-        <nav className="fixed bottom-0 inset-x-0 bg-surface-1 border-t border-border flex">
-          <Link
-            href="/cuidador/ahora"
-            className="flex-1 flex flex-col items-center justify-center py-3 gap-0.5 text-text hover:bg-surface-2 transition-colors"
-          >
-            <span className="text-xl" aria-hidden="true">
-              ●
-            </span>
-            <span className="text-xs font-medium">Ahora</span>
-          </Link>
-          <Link
-            href="/cuidador/pasaporte"
-            className="flex-1 flex flex-col items-center justify-center py-3 gap-0.5 text-text hover:bg-surface-2 transition-colors"
-          >
-            <span className="text-xl" aria-hidden="true">
-              ⬡
-            </span>
-            <span className="text-xs font-medium">Pasaporte</span>
-          </Link>
-          <Link
-            href="/cuidador/escanear"
-            className="flex-1 flex flex-col items-center justify-center py-3 gap-0.5 text-text hover:bg-surface-2 transition-colors"
-          >
-            <span className="text-xl" aria-hidden="true">
-              ▣
-            </span>
-            <span className="text-xs font-medium">Escanear</span>
-          </Link>
-        </nav>
-      )}
+      {sesion && <NavCuidador />}
     </div>
   );
 }

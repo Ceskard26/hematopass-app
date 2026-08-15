@@ -45,7 +45,7 @@ export default async function FichaPacientePage(props: PageProps<"/clinico/[codi
         ← Pacientes
       </Link>
 
-      <div className="flex items-start justify-between mt-2 mb-8">
+      <div className="hp-in flex items-start justify-between mt-2 mb-8">
         <div>
           <h1 className="font-serif text-lg">{p.nombre}</h1>
           <p className="text-sm text-text-muted mt-0.5">
@@ -60,7 +60,7 @@ export default async function FichaPacientePage(props: PageProps<"/clinico/[codi
       </div>
 
       {resultadosPendientes.length > 0 && (
-        <div className="mb-6 rounded-md border border-status-en-curso/40 bg-status-en-curso/5 px-4 py-3">
+        <div className="hp-in-fast mb-6 rounded-md border border-status-en-curso/40 bg-status-en-curso/5 px-4 py-3">
           <p className="text-sm font-medium" style={{ color: "var(--status-en-curso)" }}>
             Resultado pendiente
           </p>
@@ -82,7 +82,11 @@ export default async function FichaPacientePage(props: PageProps<"/clinico/[codi
           ) : (
             <ol className="space-y-0">
               {pasos.map((paso, i) => (
-                <li key={paso.id} className="relative pl-6 pb-6 last:pb-0">
+                <li
+                  key={paso.id}
+                  className="hp-in relative pl-6 pb-6 last:pb-0"
+                  style={{ animationDelay: `${Math.min(i, 10) * 50}ms` }}
+                >
                   {i < pasos.length - 1 && (
                     <span className="absolute left-[7px] top-4 bottom-0 w-px bg-border" />
                   )}

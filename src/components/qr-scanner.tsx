@@ -5,6 +5,7 @@ import Link from "next/link";
 import { validarEscaneo } from "@/lib/actions-cuidador";
 import { encolarEscaneo } from "@/lib/offline-queue";
 import { Sello } from "@/components/sello";
+import { QrVisorOverlay } from "@/components/qr-visor";
 
 type Resultado =
   | { estado: "exito"; pasoId: string; tipo: string; tituloClinico: string; ubicacionNombre: string }
@@ -60,7 +61,7 @@ export function QrScanner() {
     scanner
       .start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: 220 },
+        { fps: 12, qrbox: 240, aspectRatio: 1 },
         (decodedText) => {
           scanner.pause(true);
           procesar(decodedText);
@@ -126,12 +127,19 @@ export function QrScanner() {
             size={104}
           />
         </div>
-        <h1 className="font-serif text-xl mb-2">¡Sello registrado!</h1>
-        <p className="text-base text-text-muted mb-1">{resultado.tituloClinico}</p>
-        <p className="text-sm text-text-muted mb-8">{resultado.ubicacionNombre}</p>
+        <h1 className="hp-in font-serif text-xl mb-2" style={{ animationDelay: "120ms" }}>
+          ¡Sello registrado!
+        </h1>
+        <p className="hp-in text-base text-text-muted mb-1" style={{ animationDelay: "180ms" }}>
+          {resultado.tituloClinico}
+        </p>
+        <p className="hp-in text-sm text-text-muted mb-8" style={{ animationDelay: "220ms" }}>
+          {resultado.ubicacionNombre}
+        </p>
         <Link
           href="/cuidador/ahora"
-          className="w-full max-w-xs min-h-12 flex items-center justify-center rounded-lg bg-primary text-primary-ink py-4 text-md font-semibold text-center transition-colors hover:opacity-90"
+          className="hp-press hp-in w-full max-w-xs min-h-12 flex items-center justify-center rounded-lg bg-primary text-primary-ink py-4 text-md font-semibold text-center hover:opacity-90"
+          style={{ animationDelay: "280ms" }}
         >
           Ver mi próximo paso
         </Link>
@@ -140,36 +148,36 @@ export function QrScanner() {
   }
 
   return (
-    <div className="flex-1 flex flex-col px-6 pt-8 min-h-full">
+    <div className="hp-in-fast flex-1 flex flex-col px-6 pt-8 min-h-full">
       <h1 className="font-serif text-lg mb-1">Escanear código</h1>
       <p className="text-sm text-text-muted mb-6">
         Busca el sticker con el código QR pegado en la ventanilla.
       </p>
 
-      <div
-        id={ELEMENT_ID}
-        className="w-full aspect-square rounded-lg overflow-hidden bg-surface-2 border border-border mb-4"
-      />
+      <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-surface-2 border border-border mb-4">
+        <div id={ELEMENT_ID} className="absolute inset-0 [&_video]:object-cover" />
+        <QrVisorOverlay activo={camaraActiva} />
+      </div>
 
       {!camaraActiva && (
         <button
           type="button"
           onClick={iniciarCamara}
-          className="w-full rounded-lg bg-primary text-primary-ink py-3.5 text-base font-semibold mb-6 hover:opacity-90 transition-colors"
+          className="hp-press w-full rounded-lg bg-primary text-primary-ink py-3.5 text-base font-semibold mb-6 hover:opacity-90"
         >
           Iniciar cámara
         </button>
       )}
 
       {errorCamara && (
-        <p className="text-sm text-status-vencido mb-4">{errorCamara}</p>
+        <p className="hp-in-fast text-sm text-status-vencido mb-4">{errorCamara}</p>
       )}
 
       {resultado?.estado === "error" && (
-        <p className="text-sm text-status-vencido mb-4">{resultado.motivo}</p>
+        <p className="hp-in-fast text-sm text-status-vencido mb-4">{resultado.motivo}</p>
       )}
       {resultado?.estado === "encolado" && (
-        <p className="text-sm mb-4" style={{ color: "var(--status-en-curso)" }}>
+        <p className="hp-in-fast text-sm mb-4" style={{ color: "var(--status-en-curso)" }}>
           Sin señal ahora mismo. Guardamos tu escaneo y lo enviaremos apenas
           vuelva la conexión.
         </p>
@@ -185,13 +193,13 @@ export function QrScanner() {
             value={codigoManual}
             onChange={(e) => setCodigoManual(e.target.value)}
             placeholder="Código de la ventanilla"
-            className="flex-1 rounded-md border border-border bg-surface-1 px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary"
+            className="flex-1 rounded-md border border-border bg-surface-1 px-3 py-2.5 text-sm outline-none transition-shadow focus:ring-2 focus:ring-primary"
           />
           <button
             type="button"
             onClick={enviarManual}
             disabled={pending}
-            className="rounded-md border border-border px-4 py-2.5 text-sm font-medium hover:bg-surface-2 transition-colors disabled:opacity-50"
+            className="hp-press rounded-md border border-border px-4 py-2.5 text-sm font-medium hover:bg-surface-2 disabled:opacity-50"
           >
             Validar
           </button>

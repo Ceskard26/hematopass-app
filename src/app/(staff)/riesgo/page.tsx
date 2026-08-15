@@ -49,13 +49,17 @@ export default async function RiesgoPage() {
         </p>
       ) : (
         <div className="space-y-3">
-          {alertas.map((a) => {
+          {alertas.map((a, i) => {
             const cfg = SEVERIDAD_CFG[a.severidad];
             return (
-              <div key={a.id} className="rounded-lg border border-border bg-surface-1 p-4">
+              <div
+                key={a.id}
+                className="hp-in rounded-lg border border-border bg-surface-1 p-4"
+                style={{ animationDelay: `${Math.min(i, 12) * 35}ms` }}
+              >
                 <div className="flex items-center gap-2 mb-1">
                   <span
-                    className="inline-flex items-center gap-1 text-xs font-medium"
+                    className={`inline-flex items-center gap-1 text-xs font-medium ${a.severidad === "critica" ? "hp-pulse" : ""}`}
                     style={{ color: cfg.color }}
                   >
                     <span aria-hidden="true">{cfg.simbolo}</span>

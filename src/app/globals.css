@@ -191,3 +191,104 @@ h3 {
   animation: hp-sello-estampar 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
   transform-origin: 50% 50%;
 }
+
+/* ==========================================================================
+   Sistema de animaciones
+   Utilidades reutilizables, no decoración suelta: cada una comunica algo
+   (esto acaba de aparecer, esto está en curso, esto es lo importante ahora).
+   Todas quedan neutralizadas por la regla prefers-reduced-motion de arriba.
+   ========================================================================== */
+
+@keyframes hp-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes hp-slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes hp-scale-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes hp-pop {
+  0% { transform: scale(0.9); opacity: 0; }
+  60% { transform: scale(1.03); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes hp-pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@keyframes hp-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Entrada estándar: listas, cards, secciones que aparecen al cargar o al
+   llegar un dato nuevo por SSE. Para escalonar una lista, pasa un delay por
+   índice como estilo inline normal: style={{ animationDelay: `${i * 40}ms` }}
+   — es una propiedad CSS real, así que pisa el "both" del atajo sin
+   necesitar una custom property aparte. */
+.hp-in {
+  animation: hp-slide-up 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.hp-in-fast {
+  animation: hp-fade-in 0.25s ease-out both;
+}
+.hp-in-scale {
+  animation: hp-scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.hp-in-pop {
+  animation: hp-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Micro-interacción de presionado: botones y tarjetas clicables. El "lift"
+   en hover es sutil a propósito — esto es software clínico, no marketing. */
+.hp-press {
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color var(--transition-base), border-color var(--transition-base), opacity var(--transition-base);
+}
+.hp-press:hover {
+  transform: translateY(-1px);
+}
+.hp-press:active {
+  transform: scale(0.97) translateY(0);
+}
+
+/* Urgencia real, no decorativa: solo para severidad crítica/vencida — nunca
+   reemplaza la forma+ícono+texto que ya comunica el estado, lo acompaña. */
+.hp-pulse {
+  animation: hp-pulse-soft 1.8s ease-in-out infinite;
+}
+
+/* Placeholder de carga (panel de impacto, listas mientras streamean). */
+.hp-shimmer {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-1) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: hp-shimmer 1.6s ease-in-out infinite;
+}
+
+/* Visor del escáner QR (src/components/qr-scanner.tsx e
+   ingreso-cuidador-form.tsx): html5-qrcode solo dibuja un recuadro plano,
+   así que el marco con esquinas y la línea de barrido son propios, superpuestos
+   sobre su video — comunican dónde encuadrar, no son solo decoración. */
+@keyframes hp-scan-line {
+  0% { top: 6%; opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { top: 94%; opacity: 0; }
+}
+.hp-scan-line {
+  animation: hp-scan-line 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* Panel de impacto: cada segmento de la barra apilada crece desde 0 al
+   montar — un SVG propio (sin librería de gráficos), no un valor estático. */
+@keyframes hp-grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.hp-grow-x {
+  animation: hp-grow-x 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: left;
+}

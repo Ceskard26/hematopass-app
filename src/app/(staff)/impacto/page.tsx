@@ -5,14 +5,19 @@ function StatTile({
   valor,
   detalle,
   color,
+  delay = 0,
 }: {
   etiqueta: string;
   valor: string;
   detalle?: string;
   color?: string;
+  delay?: number;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-surface-1 p-5">
+    <div
+      className="hp-in-scale hp-press rounded-lg border border-border bg-surface-1 p-5"
+      style={{ animationDelay: `${delay}ms` }}
+    >
       <p className="text-xs text-text-muted uppercase tracking-wide mb-2">{etiqueta}</p>
       <p className="font-serif text-xl" style={color ? { color } : undefined}>
         {valor}
@@ -55,11 +60,22 @@ function BarraEstados({
   return (
     <div>
       <svg viewBox="0 0 100 8" className="w-full h-6" role="img" aria-label="Distribución de pasos por estado">
-        {segmentos.map((s) => {
+        {segmentos.map((s, i) => {
           const ancho = (s.valor / total) * 100;
           const x = acumulado;
           acumulado += ancho;
-          return <rect key={s.etiqueta} x={x} y={0} width={ancho} height={8} fill={s.color} />;
+          return (
+            <rect
+              key={s.etiqueta}
+              className="hp-grow-x"
+              x={x}
+              y={0}
+              width={ancho}
+              height={8}
+              fill={s.color}
+              style={{ animationDelay: `${i * 90}ms` }}
+            />
+          );
         })}
       </svg>
       <div className="flex flex-wrap gap-x-5 gap-y-1 mt-3">
@@ -94,6 +110,7 @@ export default async function ImpactoPage() {
           valor={`${m.tasaAbandono.toFixed(1)}%`}
           detalle={`${m.enAbandono} de ${m.totalConRuta} pacientes`}
           color={m.tasaAbandono > 0 ? "var(--status-abandono)" : undefined}
+          delay={0}
         />
         <StatTile
           etiqueta="Viajes desperdiciados evitados"
@@ -104,17 +121,20 @@ export default async function ImpactoPage() {
               : "Regla R5 — la única preventiva"
           }
           color="var(--color-sello-dark)"
+          delay={60}
         />
         <StatTile
           etiqueta="Pasos vencidos"
           valor={String(m.pasos.vencidos)}
           detalle={`de ${m.pasos.total} pasos totales`}
           color={m.pasos.vencidos > 0 ? "var(--status-vencido)" : undefined}
+          delay={120}
         />
         <StatTile
           etiqueta="Recontactos exitosos"
           valor={`${m.contactos.exitosos} / ${m.contactos.total}`}
           detalle="familias localizadas tras una alerta"
+          delay={180}
         />
       </div>
 
@@ -132,7 +152,7 @@ export default async function ImpactoPage() {
       </section>
 
       <section className="grid grid-cols-2 gap-4">
-        <div className="rounded-lg border border-border bg-surface-1 p-5">
+        <div className="hp-in-scale rounded-lg border border-border bg-surface-1 p-5">
           <p className="text-xs text-text-muted uppercase tracking-wide mb-2">
             Pacientes de fuera de Lima
           </p>
@@ -142,7 +162,7 @@ export default async function ImpactoPage() {
             provincia — la razón de que R5 exista.
           </p>
         </div>
-        <div className="rounded-lg border border-border bg-surface-1 p-5">
+        <div className="hp-in-scale rounded-lg border border-border bg-surface-1 p-5" style={{ animationDelay: "60ms" }}>
           <p className="text-xs text-text-muted uppercase tracking-wide mb-2">
             Tiempo promedio entre pasos
           </p>

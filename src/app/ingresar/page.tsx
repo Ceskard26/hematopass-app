@@ -27,14 +27,14 @@ export default async function IngresarPage(props: PageProps<"/ingresar">) {
 
   return (
     <main className="flex-1 flex items-center justify-center px-6">
-      <form action={ingresar} className="w-full max-w-sm">
+      <form action={ingresar} className="hp-in w-full max-w-sm">
         <img
           src="/brand-mark.png"
           alt=""
           aria-hidden="true"
           width={48}
           height={48}
-          className="h-12 w-12 rounded-full mb-4"
+          className="hp-in-pop h-12 w-12 rounded-full mb-4"
         />
         <h1 className="font-serif text-xl mb-1">Personal clínico</h1>
         <p className="text-sm text-text-muted mb-6">
@@ -42,7 +42,7 @@ export default async function IngresarPage(props: PageProps<"/ingresar">) {
         </p>
 
         {error && (
-          <p className="mb-4 rounded-md bg-status-vencido/10 border border-status-vencido/30 text-status-vencido text-sm px-3 py-2">
+          <p className="hp-in-fast mb-4 rounded-md bg-status-vencido/10 border border-status-vencido/30 text-status-vencido text-sm px-3 py-2">
             Correo o contraseña incorrectos.
           </p>
         )}
@@ -58,7 +58,7 @@ export default async function IngresarPage(props: PageProps<"/ingresar">) {
           type="email"
           required
           autoComplete="username"
-          className="w-full rounded-md border border-border bg-surface-1 px-3 py-2 mb-4 outline-none focus:ring-2 focus:ring-primary"
+          className="w-full rounded-md border border-border bg-surface-1 px-3 py-2 mb-4 outline-none transition-shadow focus:ring-2 focus:ring-primary"
         />
 
         <label className="block text-sm font-medium mb-1" htmlFor="password">
@@ -70,12 +70,12 @@ export default async function IngresarPage(props: PageProps<"/ingresar">) {
           type="password"
           required
           autoComplete="current-password"
-          className="w-full rounded-md border border-border bg-surface-1 px-3 py-2 mb-6 outline-none focus:ring-2 focus:ring-primary"
+          className="w-full rounded-md border border-border bg-surface-1 px-3 py-2 mb-6 outline-none transition-shadow focus:ring-2 focus:ring-primary"
         />
 
         <button
           type="submit"
-          className="w-full rounded-md bg-primary text-primary-ink py-2.5 font-semibold transition-colors hover:opacity-90"
+          className="hp-press w-full rounded-md bg-primary text-primary-ink py-2.5 font-semibold hover:opacity-90"
         >
           Ingresar
         </button>

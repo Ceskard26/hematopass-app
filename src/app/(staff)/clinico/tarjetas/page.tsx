@@ -29,10 +29,11 @@ export default async function TarjetasPage() {
       </p>
 
       <div className="grid grid-cols-3 gap-6">
-        {conQr.map((p) => (
+        {conQr.map((p, i) => (
           <div
             key={p.id}
-            className="rounded-lg border border-border bg-surface-1 p-5 text-center print:break-inside-avoid"
+            className="hp-in-scale hp-press rounded-lg border border-border bg-surface-1 p-5 text-center print:break-inside-avoid"
+            style={{ animationDelay: `${Math.min(i, 12) * 35}ms` }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

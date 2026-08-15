@@ -29,12 +29,13 @@ export default async function PasaportePage() {
         <p className="text-sm text-text-muted italic">Todavía no hay pasos registrados.</p>
       ) : (
         <ol className="space-y-3">
-          {pasos.map((paso) => {
+          {pasos.map((paso, i) => {
             const sellado = paso.estado === "completado";
             return (
               <li
                 key={paso.id}
-                className="flex items-center gap-4 rounded-lg border border-border bg-surface-1 px-4 py-3.5"
+                className="hp-in flex items-center gap-4 rounded-lg border border-border bg-surface-1 px-4 py-3.5"
+                style={{ animationDelay: `${Math.min(i, 10) * 45}ms` }}
               >
                 <Sello
                   estado={sellado ? "sellado" : "vacio"}

@@ -17,11 +17,16 @@ export default async function ElegirPacientePage() {
     <main className="flex-1 flex flex-col px-6 pt-8 min-h-full">
       <h1 className="font-serif text-lg mb-6">¿De quién es la ruta?</h1>
       <div className="space-y-3">
-        {pacientes.map((p) => (
-          <form key={p.id} action={cambiarPacienteActivo.bind(null, p.id)}>
+        {pacientes.map((p, i) => (
+          <form
+            key={p.id}
+            action={cambiarPacienteActivo.bind(null, p.id)}
+            className="hp-in"
+            style={{ animationDelay: `${i * 60}ms` }}
+          >
             <button
               type="submit"
-              className="w-full text-left rounded-lg border border-border bg-surface-1 px-4 py-4 hover:border-primary transition-colors"
+              className="hp-press w-full text-left rounded-lg border border-border bg-surface-1 px-4 py-4 hover:border-primary"
             >
               <span className="block text-md font-medium">{p.nombre}</span>
               <span className="block text-sm text-text-muted">{p.dxNombre}</span>

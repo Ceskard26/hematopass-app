@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { QrVisorOverlay } from "@/components/qr-visor";
 
 const ELEMENT_ID = "hematopass-cuidador-qr-reader";
 
@@ -55,7 +56,7 @@ export function IngresoCuidadorForm({
     scanner
       .start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: 220 },
+        { fps: 12, qrbox: 240, aspectRatio: 1 },
         (decodedText) => {
           scanner.stop().catch(() => {});
           setCamaraActiva(false);
@@ -80,14 +81,14 @@ export function IngresoCuidadorForm({
   }
 
   return (
-    <form ref={formRef} action={accion} className="w-full max-w-sm text-center">
+    <form ref={formRef} action={accion} className="hp-in w-full max-w-sm text-center">
       <img
         src="/brand-badge.png"
         alt=""
         aria-hidden="true"
         width={96}
         height={96}
-        className="mx-auto mb-4 h-24 w-24 rounded-full"
+        className="hp-in-pop mx-auto mb-4 h-24 w-24 rounded-full"
       />
       <h1 className="font-serif text-xl mb-2">Bienvenido a Hematopass</h1>
       <p className="text-base text-text-muted leading-relaxed mb-8">
@@ -96,7 +97,7 @@ export function IngresoCuidadorForm({
       </p>
 
       {error && (
-        <p className="mb-4 rounded-md bg-status-vencido/10 border border-status-vencido/30 text-status-vencido text-sm px-3 py-2">
+        <p className="hp-in-fast mb-4 rounded-md bg-status-vencido/10 border border-status-vencido/30 text-status-vencido text-sm px-3 py-2">
           {error}
         </p>
       )}
@@ -108,15 +109,17 @@ export function IngresoCuidadorForm({
         en cualquier navegador. Se oculta con CSS, no se desmonta.
       */}
       <div
-        id={ELEMENT_ID}
-        className={`w-full aspect-square rounded-lg overflow-hidden bg-surface-2 border border-border mb-3 ${camaraActiva ? "" : "hidden"}`}
-      />
+        className={`relative w-full aspect-square rounded-lg overflow-hidden bg-surface-2 border border-border mb-3 ${camaraActiva ? "hp-in-scale" : "hidden"}`}
+      >
+        <div id={ELEMENT_ID} className="absolute inset-0 [&_video]:object-cover" />
+        <QrVisorOverlay activo={camaraActiva} />
+      </div>
 
       {camaraActiva ? (
         <button
           type="button"
           onClick={detenerCamara}
-          className="text-sm text-text-muted underline mb-6"
+          className="hp-press text-sm text-text-muted underline mb-6"
         >
           Cancelar
         </button>
@@ -124,14 +127,14 @@ export function IngresoCuidadorForm({
         <button
           type="button"
           onClick={iniciarCamara}
-          className="w-full flex items-center justify-center gap-2 rounded-md border border-border px-6 py-3 mb-6 font-semibold transition-colors hover:bg-surface-2"
+          className="hp-press w-full flex items-center justify-center gap-2 rounded-md border border-border px-6 py-3 mb-6 font-semibold hover:bg-surface-2"
         >
           <span aria-hidden="true">▣</span> Escanear el QR
         </button>
       )}
 
       {errorCamara && (
-        <p className="mb-4 text-sm text-status-vencido">{errorCamara}</p>
+        <p className="hp-in-fast mb-4 text-sm text-status-vencido">{errorCamara}</p>
       )}
 
       <div className="flex items-center gap-3 mb-4">
@@ -148,12 +151,12 @@ export function IngresoCuidadorForm({
         autoCapitalize="characters"
         placeholder="HP-00001"
         required
-        className="w-full text-center text-lg tracking-wide rounded-md border border-border bg-surface-1 px-4 py-3 mb-4 outline-none focus:ring-2 focus:ring-primary"
+        className="w-full text-center text-lg tracking-wide rounded-md border border-border bg-surface-1 px-4 py-3 mb-4 outline-none transition-shadow focus:ring-2 focus:ring-primary"
       />
 
       <button
         type="submit"
-        className="w-full rounded-md bg-primary text-primary-ink py-3 text-base font-semibold transition-colors hover:opacity-90"
+        className="hp-press w-full rounded-md bg-primary text-primary-ink py-3 text-base font-semibold hover:opacity-90"
       >
         Ingresar
       </button>

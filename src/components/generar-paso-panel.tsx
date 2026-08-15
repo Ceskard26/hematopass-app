@@ -80,7 +80,7 @@ export function GenerarPasoPanel({
   return (
     <div>
       <div className="grid grid-cols-2 gap-2">
-        {TIPOS.map((tipo) => {
+        {TIPOS.map((tipo, i) => {
           const plantilla = PLANTILLAS_PASO[tipo];
           const ubi = ubicacionPara(tipo);
           const activo = enviando === tipo && pending;
@@ -90,10 +90,11 @@ export function GenerarPasoPanel({
               type="button"
               disabled={pending}
               onClick={() => generar(tipo)}
-              className="text-left rounded-md border border-border bg-surface-1 px-3 py-2.5 hover:border-primary hover:bg-surface-2 transition-colors disabled:opacity-50"
+              className="hp-press hp-in text-left rounded-md border border-border bg-surface-1 px-3 py-2.5 hover:border-primary hover:bg-surface-2 disabled:opacity-50"
+              style={{ animationDelay: `${i * 30}ms` }}
             >
               <span className="block text-sm font-medium">{plantilla.etiqueta}</span>
-              <span className="block text-xs text-text-muted">
+              <span className={`block text-xs text-text-muted ${activo ? "hp-pulse" : ""}`}>
                 {activo ? "Generando…" : ubi ? `${ubi.nombre}${ubi.ventanilla ? ` · ${ubi.ventanilla}` : ""}` : "—"}
               </span>
             </button>
@@ -101,18 +102,18 @@ export function GenerarPasoPanel({
         })}
       </div>
 
-      {error && <p className="mt-3 text-xs text-status-vencido">{error}</p>}
+      {error && <p className="hp-in-fast mt-3 text-xs text-status-vencido">{error}</p>}
 
       <button
         type="button"
         onClick={() => setAvanzado((v) => !v)}
-        className="mt-4 text-xs text-text-muted hover:text-text underline"
+        className="hp-press mt-4 text-xs text-text-muted hover:text-text underline"
       >
         {avanzado ? "Ocultar personalización" : "Personalizar destino"}
       </button>
 
       {avanzado && (
-        <p className="mt-2 text-xs text-text-muted">
+        <p className="hp-in-fast mt-2 text-xs text-text-muted">
           Cada plantilla ya elige automáticamente la ubicación correcta según
           su tipo. Para forzar otra ventanilla específica, contacta a
           Sistemas — esta personalización fina queda fuera del alcance del

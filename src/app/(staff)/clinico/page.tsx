@@ -16,16 +16,16 @@ export default async function ClinicoPage() {
           </p>
         </div>
         <div className="flex gap-4">
-          <Link href="/clinico/tarjetas" className="text-sm text-text-muted hover:text-text underline">
+          <Link href="/clinico/tarjetas" className="hp-press text-sm text-text-muted hover:text-text underline">
             Tarjetas de paciente
           </Link>
-          <Link href="/clinico/ubicaciones" className="text-sm text-text-muted hover:text-text underline">
+          <Link href="/clinico/ubicaciones" className="hp-press text-sm text-text-muted hover:text-text underline">
             Códigos QR de ventanillas
           </Link>
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-surface-1 overflow-hidden">
+      <div className="hp-in-fast rounded-lg border border-border bg-surface-1 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-surface-2 text-left text-xs text-text-muted uppercase tracking-wide">
@@ -37,10 +37,11 @@ export default async function ClinicoPage() {
             </tr>
           </thead>
           <tbody>
-            {pacientes.map((p) => (
+            {pacientes.map((p, i) => (
               <tr
                 key={p.id}
-                className="border-b border-border last:border-0 hover:bg-surface-2/60 transition-colors"
+                className="hp-in border-b border-border last:border-0 hover:bg-surface-2/60 transition-colors"
+                style={{ animationDelay: `${Math.min(i, 14) * 22}ms` }}
               >
                 <td className="px-4 py-3">
                   <Link href={`/clinico/${p.codigo}`} className="hover:underline">

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { auth, signOut } from "@/lib/auth";
+import { NavClinico } from "@/components/nav-clinico";
 
 const NAV = [
   { href: "/clinico", label: "Pacientes", roles: ["medico", "admin"] },
@@ -30,24 +30,14 @@ export default async function StaffLayout({ children }: { children: React.ReactN
             aria-hidden="true"
             width={32}
             height={32}
-            className="h-8 w-8 rounded-full shrink-0"
+            className="hp-in-pop h-8 w-8 rounded-full shrink-0"
           />
           <div>
             <p className="font-serif text-md leading-tight">Hematopass</p>
             <p className="text-xs text-text-muted mt-0.5">Personal clínico</p>
           </div>
         </div>
-        <nav className="flex-1 py-3">
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="block px-5 py-2.5 text-sm text-text hover:bg-surface-2 transition-colors"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <NavClinico items={items.map((i) => ({ href: i.href, label: i.label }))} />
         <div className="px-5 py-4 border-t border-border">
           <p className="text-sm font-medium truncate">{session?.user?.name}</p>
           <p className="text-xs text-text-muted mb-3">{ROL_LABEL[rol] ?? rol}</p>
@@ -57,7 +47,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
               await signOut({ redirectTo: "/" });
             }}
           >
-            <button className="text-xs text-text-muted hover:text-text underline">
+            <button className="hp-press text-xs text-text-muted hover:text-text underline">
               Cerrar sesión
             </button>
           </form>

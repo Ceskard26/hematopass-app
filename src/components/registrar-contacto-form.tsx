@@ -39,7 +39,7 @@ export function RegistrarContactoForm({ alertaId }: { alertaId: string }) {
       <button
         type="button"
         onClick={() => setAbierto(true)}
-        className="text-sm text-primary underline shrink-0"
+        className="hp-press text-sm text-primary underline shrink-0"
       >
         Registrar contacto
       </button>
@@ -47,12 +47,12 @@ export function RegistrarContactoForm({ alertaId }: { alertaId: string }) {
   }
 
   return (
-    <div className="mt-3 pt-3 border-t border-border space-y-2">
+    <div className="hp-in mt-3 pt-3 border-t border-border space-y-2">
       <div className="flex gap-2">
         <select
           value={canal}
           onChange={(e) => setCanal(e.target.value)}
-          className="rounded-md border border-border bg-surface-1 px-2 py-1.5 text-sm"
+          className="rounded-md border border-border bg-surface-1 px-2 py-1.5 text-sm transition-shadow focus:ring-2 focus:ring-primary"
         >
           {CANALES.map((c) => (
             <option key={c.value} value={c.value}>
@@ -63,7 +63,7 @@ export function RegistrarContactoForm({ alertaId }: { alertaId: string }) {
         <select
           value={resultado}
           onChange={(e) => setResultado(e.target.value)}
-          className="rounded-md border border-border bg-surface-1 px-2 py-1.5 text-sm"
+          className="rounded-md border border-border bg-surface-1 px-2 py-1.5 text-sm transition-shadow focus:ring-2 focus:ring-primary"
         >
           {RESULTADOS.map((r) => (
             <option key={r.value} value={r.value}>
@@ -84,7 +84,7 @@ export function RegistrarContactoForm({ alertaId }: { alertaId: string }) {
           type="button"
           disabled={pending}
           onClick={() => enviar(false)}
-          className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-surface-2 disabled:opacity-50"
+          className="hp-press rounded-md border border-border px-3 py-1.5 text-sm hover:bg-surface-2 disabled:opacity-50"
         >
           Guardar
         </button>
@@ -92,14 +92,14 @@ export function RegistrarContactoForm({ alertaId }: { alertaId: string }) {
           type="button"
           disabled={pending}
           onClick={() => enviar(true)}
-          className="rounded-md bg-primary text-primary-ink px-3 py-1.5 text-sm hover:opacity-90 disabled:opacity-50"
+          className="hp-press rounded-md bg-primary text-primary-ink px-3 py-1.5 text-sm hover:opacity-90 disabled:opacity-50"
         >
           Guardar y resolver
         </button>
         <button
           type="button"
           onClick={() => setAbierto(false)}
-          className="text-sm text-text-muted hover:text-text"
+          className="hp-press text-sm text-text-muted hover:text-text"
         >
           Cancelar
         </button>

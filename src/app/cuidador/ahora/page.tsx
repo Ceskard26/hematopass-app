@@ -61,7 +61,7 @@ export default async function TarjetaAhoraPage() {
       {mostrarAvisoViaje && (
         <Link
           href="/cuidador/viaje"
-          className="mb-6 flex items-center gap-3 rounded-lg border px-4 py-3"
+          className="hp-in hp-press mb-6 flex items-center gap-3 rounded-lg border px-4 py-3"
           style={{
             borderColor:
               viaje!.estado === "rojo" ? "var(--status-vencido)" : "var(--status-en-curso)",
@@ -70,7 +70,7 @@ export default async function TarjetaAhoraPage() {
           }}
         >
           <span
-            className="text-lg shrink-0"
+            className={`text-lg shrink-0 ${viaje!.estado === "rojo" ? "hp-pulse" : ""}`}
             style={{
               color: viaje!.estado === "rojo" ? "var(--status-vencido)" : "var(--status-en-curso)",
             }}
@@ -85,8 +85,8 @@ export default async function TarjetaAhoraPage() {
       )}
 
       {!pasoActual ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center">
-          <p className="text-5xl mb-4" aria-hidden="true">
+        <div key="vacio" className="hp-in flex-1 flex flex-col items-center justify-center text-center">
+          <p className="hp-in-pop text-5xl mb-4" aria-hidden="true">
             ⬡
           </p>
           <h1 className="font-serif text-xl mb-2">Todo al día</h1>
@@ -96,35 +96,42 @@ export default async function TarjetaAhoraPage() {
           </p>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col items-center text-center">
-          <p className="text-sm text-text-muted mb-1" aria-hidden="true">
+        // key en el id del paso: cuando SSE trae un paso nuevo, React
+        // remonta este bloque y la animación de entrada vuelve a jugar —
+        // es la señal visual de "esto acaba de cambiar".
+        <div key={pasoActual.id} className="flex-1 flex flex-col items-center text-center">
+          <p className="hp-in-pop text-sm text-text-muted mb-1" aria-hidden="true">
             {ICONO_TIPO[pasoActual.tipo] ?? "●"}
           </p>
-          <p className="text-sm text-text-muted uppercase tracking-wide mb-3">
+          <p className="hp-in text-sm text-text-muted uppercase tracking-wide mb-3" style={{ animationDelay: "40ms" }}>
             Tu próximo paso
           </p>
 
-          <h1 className="font-serif text-xxl leading-[1.05] mb-6">
+          <h1 className="hp-in font-serif text-xxl leading-[1.05] mb-6" style={{ animationDelay: "90ms" }}>
             {pasoActual.ubicacion?.nombre ?? "—"}
           </h1>
 
-          <p className="text-md font-medium mb-1">
+          <p className="hp-in text-md font-medium mb-1" style={{ animationDelay: "150ms" }}>
             {pasoActual.ubicacion?.piso}
             {pasoActual.ubicacion?.modulo ? ` · Módulo ${pasoActual.ubicacion.modulo}` : ""}
           </p>
           {pasoActual.ubicacion?.ventanilla && (
-            <p className="text-lg font-semibold mb-8" style={{ color: "var(--surface-primary)" }}>
+            <p
+              className="hp-in text-lg font-semibold mb-8"
+              style={{ color: "var(--surface-primary)", animationDelay: "190ms" }}
+            >
               {pasoActual.ubicacion.ventanilla}
             </p>
           )}
 
-          <p className="text-base text-text-muted leading-relaxed max-w-xs mb-10">
+          <p className="hp-in text-base text-text-muted leading-relaxed max-w-xs mb-10" style={{ animationDelay: "230ms" }}>
             {pasoActual.instruccionCuidador}
           </p>
 
           <Link
             href="/cuidador/escanear"
-            className="w-full max-w-xs min-h-12 flex items-center justify-center rounded-lg bg-primary text-primary-ink py-4 text-md font-semibold text-center transition-colors hover:opacity-90"
+            className="hp-press hp-in w-full max-w-xs min-h-12 flex items-center justify-center rounded-lg bg-primary text-primary-ink py-4 text-md font-semibold text-center hover:opacity-90"
+            style={{ animationDelay: "280ms" }}
           >
             Escanear código
           </Link>
