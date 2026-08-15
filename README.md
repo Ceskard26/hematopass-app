@@ -42,7 +42,7 @@ Requiere [Docker](https://docs.docker.com/get-docker/) y Docker Compose v2.
 ```bash
 cp .env.example .env
 # genera un valor real para AUTH_SECRET dentro de .env:
-#   npx auth secret   (o: openssl rand -base64 33)
+#   pnpm dlx auth secret   (o: openssl rand -base64 33)
 docker compose up --build
 ```
 
@@ -63,11 +63,11 @@ completa y sus contraseñas):
 
 ```bash
 cp .env.example .env.local
-npm install
+pnpm install
 # necesita un Postgres accesible en DATABASE_URL (ver .env.local)
-npx drizzle-kit push
-npx tsx src/db/seed.ts
-npm run dev
+pnpm exec drizzle-kit push
+pnpm exec tsx src/db/seed.ts
+pnpm dev
 ```
 
 ## Arquitectura, en una frase

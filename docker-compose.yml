@@ -17,7 +17,7 @@ services:
     ports:
       # Puerto de host no estándar (55432): en Windows, 5432 a veces está
       # reservado por el rango dinámico de Hyper-V y el bind falla. Solo
-      # loopback — permite `npm run dev` local contra el mismo Postgres que
+      # loopback — permite `pnpm dev` local contra el mismo Postgres que
       # usa el stack en Docker, sin exponerlo en la red pública.
       - "127.0.0.1:55432:5432"
     healthcheck:
@@ -32,7 +32,7 @@ services:
     build:
       context: .
       target: build
-    command: sh -c "npx drizzle-kit push --force && npx tsx src/db/seed.ts"
+    command: sh -c "pnpm exec drizzle-kit push --force && pnpm exec tsx src/db/seed.ts"
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-hematopass}:${POSTGRES_PASSWORD:-hematopass}@postgres:5432/${POSTGRES_DB:-hematopass}
     depends_on:

@@ -33,7 +33,7 @@ EC2 t3.small  →  Docker Compose
    ```bash
    git clone <url-del-repo> hematopass && cd hematopass
    cp .env.example .env
-   # generar AUTH_SECRET real: npx auth secret (requiere Node) u openssl rand -base64 33
+   # generar AUTH_SECRET real: pnpm dlx auth secret (requiere Node) u openssl rand -base64 33
    # si hay dominio propio, fijar SITE_ADDRESS=hematopass.tudominio.org
    ```
 4. Levantar:

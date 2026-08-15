@@ -7,11 +7,15 @@
 FROM node:22-slim AS base
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+# corepack lee el campo "packageManager" de package.json y descarga esa
+# versión exacta de pnpm la primera vez que se invoca — sin esto, "pnpm"
+# no existiría en la imagen base de Node.
+RUN corepack enable
 
 # ---- deps -------------------------------------------------------------
 FROM base AS deps
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
 
 # ---- build --------------------------------------------------------------
 FROM base AS build
@@ -21,7 +25,7 @@ COPY . .
 # se instancian a nivel de módulo y necesitan una URL con forma válida.
 ENV DATABASE_URL="postgres://build:build@localhost:5432/build"
 ENV AUTH_SECRET="build-time-placeholder-not-used-at-runtime"
-RUN npm run build
+RUN pnpm run build
 
 # ---- runtime ------------------------------------------------------------
 FROM base AS runtime
