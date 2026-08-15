@@ -1,8 +1,14 @@
 import { redirect } from "next/navigation";
 import { leerSesionCuidador } from "@/lib/cuidador-session";
-import { obtenerRutaParaCuidador } from "@/lib/queries-cuidador";
+import { obtenerRutaParaCuidador, resultadosDePaciente } from "@/lib/queries-cuidador";
 import { Sello } from "@/components/sello";
 import { FASE_LABEL } from "@/lib/fase-tratamiento";
+
+const ESTADO_RESULTADO_CFG: Record<string, { label: string; color: string }> = {
+  pendiente: { label: "En proceso", color: "var(--status-en-curso)" },
+  listo: { label: "Listo", color: "var(--status-completado)" },
+  entregado: { label: "Entregado", color: "var(--status-completado)" },
+};
 
 function formatearFecha(fecha: Date | string | null) {
   if (!fecha) return null;
@@ -13,7 +19,10 @@ export default async function PasaportePage() {
   const sesion = await leerSesionCuidador();
   if (!sesion) redirect("/cuidador");
 
-  const detalle = await obtenerRutaParaCuidador(sesion.pacienteId);
+  const [detalle, resultados] = await Promise.all([
+    obtenerRutaParaCuidador(sesion.pacienteId),
+    resultadosDePaciente(sesion.pacienteId),
+  ]);
   if (!detalle) redirect("/cuidador");
 
   const { paciente: p, rutaActiva, pasos } = detalle;
@@ -33,6 +42,44 @@ export default async function PasaportePage() {
       )}
       {!faseActual && <div className="mb-8" />}
 
+      {resultados.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-sm font-medium text-text-muted uppercase tracking-wide mb-3">
+            Resultados
+          </h2>
+          <ul className="space-y-2">
+            {resultados.map((r) => {
+              const cfg = ESTADO_RESULTADO_CFG[r.estado] ?? ESTADO_RESULTADO_CFG.pendiente;
+              return (
+                <li
+                  key={r.id}
+                  className="hp-in flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-1 px-4 py-3"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{r.tipo}</p>
+                    <p className="text-xs text-text-muted">
+                      {r.estado === "pendiente"
+                        ? `Solicitado ${formatearFecha(r.solicitadoEn)}`
+                        : `Listo ${formatearFecha(r.listoEn)}`}
+                    </p>
+                  </div>
+                  <span
+                    className="shrink-0 inline-flex items-center gap-1.5 text-xs font-medium"
+                    style={{ color: cfg.color }}
+                  >
+                    <span aria-hidden="true">{r.estado === "pendiente" ? "◑" : "✓"}</span>
+                    {cfg.label}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      <h2 className="text-sm font-medium text-text-muted uppercase tracking-wide mb-3">
+        Tu ruta — lo que ya pasó y lo que sigue
+      </h2>
       {pasos.length === 0 ? (
         <p className="text-sm text-text-muted italic">Todavía no hay pasos registrados.</p>
       ) : (

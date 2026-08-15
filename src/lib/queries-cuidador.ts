@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { paciente, pacienteCuidador, paso, resultadoLab } from "@/db/schema";
 
@@ -73,15 +73,21 @@ export async function obtenerRutaParaCuidador(pacienteId: string) {
 }
 
 /**
- * El semáforo "¿Debo viajar?" (F5 lo hará data-driven vía el motor de
- * riesgo; por ahora expone el dato crudo que R5 va a consumir: si hay un
- * resultado pendiente Y una cita próxima).
+ * Todos los resultados de laboratorio del paciente, cualquier estado (pese
+ * al nombre de la versión anterior de esta función, no filtraba solo
+ * pendientes — se usa tanto para el semáforo "¿Debo viajar?" como para la
+ * sección "Resultados" de "Mi pasaporte", que sí necesita ver los listos).
+ * Nunca expone el valor clínico del resultado, solo tipo y estado —
+ * docs/sistema-de-diseno.md §6.2: la app del cuidador no muestra pronóstico
+ * ni diagnóstico completo, y el esquema (src/db/schema.ts) ni siquiera
+ * guarda el valor del resultado, solo su estado y fechas.
  */
-export async function resultadosPendientesDePaciente(pacienteId: string) {
+export async function resultadosDePaciente(pacienteId: string) {
   return db
     .select()
     .from(resultadoLab)
-    .where(and(eq(resultadoLab.pacienteId, pacienteId)));
+    .where(eq(resultadoLab.pacienteId, pacienteId))
+    .orderBy(desc(resultadoLab.solicitadoEn));
 }
 
 export async function obtenerPasoPorUbicacionPendiente(
@@ -120,7 +126,7 @@ export async function evaluarViaje(pacienteId: string) {
   const detalle = await obtenerRutaParaCuidador(pacienteId);
   if (!detalle) return null;
 
-  const resultados = await resultadosPendientesDePaciente(pacienteId);
+  const resultados = await resultadosDePaciente(pacienteId);
   const resultadoPendiente = resultados.find((r) => r.estado === "pendiente") ?? null;
 
   const ahora = Date.now();
