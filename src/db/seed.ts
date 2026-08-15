@@ -48,6 +48,11 @@ function pickWeighted<T>(arr: readonly T[], n: number): T[] {
   return shuffled.slice(0, n);
 }
 
+// DNI peruano sintético: 8 dígitos. No corresponde a ningún documento real.
+function generarDni(): string {
+  return String(Math.floor(10000000 + Math.random() * 89999999));
+}
+
 function hoursFromNow(h: number): Date {
   return new Date(Date.now() + h * 60 * 60 * 1000);
 }
@@ -218,6 +223,7 @@ async function crearPacienteConCuidador(opts: {
       .insert(cuidador)
       .values({
         nombre: `${pick(NOMBRES_ADULTOS)} ${pick(APELLIDOS)}`,
+        dni: generarDni(),
         telefono: `9${Math.floor(10000000 + Math.random() * 89999999)}`,
         relacion: pick(RELACIONES),
       })

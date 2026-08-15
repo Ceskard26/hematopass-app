@@ -23,6 +23,7 @@ export function IngresoCuidadorForm({
   const scannerRef = useRef<import("html5-qrcode").Html5Qrcode | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dniRef = useRef<HTMLInputElement>(null);
   // Constructor de Html5Qrcode precargado en el módulo (no en el clic) — ver
   // el comentario dentro de iniciarCamara() sobre por qué esto importa.
   const Html5QrcodeRef = useRef<typeof import("html5-qrcode").Html5Qrcode | null>(null);
@@ -64,7 +65,15 @@ export function IngresoCuidadorForm({
           scanner.stop().catch(() => {});
           setCamaraActiva(false);
           if (inputRef.current) inputRef.current.value = decodedText.trim();
-          formRef.current?.requestSubmit();
+          // El QR de la tarjeta solo trae el código, no el DNI (es personal
+          // de quien la sostiene, no algo impreso). Si ya lo había escrito,
+          // completa los dos factores y envía; si no, lo lleva ahí a
+          // terminar en vez de enviar un formulario a medias.
+          if (dniRef.current?.value.trim()) {
+            formRef.current?.requestSubmit();
+          } else {
+            dniRef.current?.focus();
+          }
         },
         () => {
           // errores de frame-a-frame (nada detectado aún): se ignoran, son normales
@@ -96,8 +105,9 @@ export function IngresoCuidadorForm({
       />
       <h1 className="font-serif text-xl mb-2">Bienvenido a Hematopass</h1>
       <p className="text-base text-text-muted leading-relaxed mb-8">
-        Escribe el código de tu pasaporte o escanea el QR de tu tarjeta. Está
-        impreso en la tarjeta que te dieron en Admisión.
+        Escribe el código de tu pasaporte (o escanea el QR de tu tarjeta) y tu
+        DNI. Las dos cosas confirman que eres tú, no solo quien tiene la
+        tarjeta en la mano.
       </p>
 
       {error && (
@@ -105,6 +115,21 @@ export function IngresoCuidadorForm({
           {error}
         </p>
       )}
+
+      <label htmlFor="dni-cuidador" className="block text-left text-sm font-medium mb-1.5">
+        Tu DNI
+      </label>
+      <input
+        ref={dniRef}
+        id="dni-cuidador"
+        name="dni"
+        type="text"
+        inputMode="numeric"
+        maxLength={8}
+        placeholder="12345678"
+        required
+        className="w-full text-center text-lg tracking-wide rounded-md border border-border bg-surface-1 px-4 py-3 mb-6 outline-none transition-shadow focus:ring-2 focus:ring-primary"
+      />
 
       {/*
         El contenedor SIEMPRE está visible, nunca display:none: html5-qrcode
@@ -154,6 +179,7 @@ export function IngresoCuidadorForm({
         inputMode="text"
         autoCapitalize="characters"
         placeholder="HP-00001"
+        aria-label="Código del pasaporte"
         required
         className="w-full text-center text-lg tracking-wide rounded-md border border-border bg-surface-1 px-4 py-3 mb-4 outline-none transition-shadow focus:ring-2 focus:ring-primary"
       />

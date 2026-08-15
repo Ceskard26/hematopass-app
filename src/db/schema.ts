@@ -151,6 +151,12 @@ export const paciente = pgTable(
 export const cuidador = pgTable("cuidador", {
   id: uuid("id").primaryKey().defaultRandom(),
   nombre: varchar("nombre", { length: 200 }).notNull(),
+  // Segundo factor del ingreso del cuidador: el código del pasaporte lo
+  // entrega el personal clínico en persona (solo lo tiene quien ya fue
+  // verificado en Admisión), pero por sí solo no prueba QUIÉN lo tiene en
+  // la mano. El DNI, verificado contra el registro que cargó el personal
+  // clínico, cierra ese hueco sin requerir cuenta ni contraseña.
+  dni: varchar("dni", { length: 8 }),
   telefono: varchar("telefono", { length: 20 }),
   relacion: varchar("relacion", { length: 50 }).notNull(), // madre, padre, tutor...
   // Un cuidador puede acceder a la app sin cuenta médica formal: PIN simple.

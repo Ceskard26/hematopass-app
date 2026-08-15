@@ -38,7 +38,7 @@ export async function pacientesDeCuidador(cuidadorId: string) {
 export async function buscarPacientePorCodigoYCuidador(codigo: string) {
   const p = await db.query.paciente.findFirst({
     where: (t, { eq }) => eq(t.codigo, codigo.trim().toUpperCase()),
-    with: { cuidadores: true },
+    with: { cuidadores: { with: { cuidador: true } } },
   });
   return p ?? null;
 }

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { leerSesionCuidador } from "@/lib/cuidador-session";
 import { obtenerRutaParaCuidador } from "@/lib/queries-cuidador";
 import { Sello } from "@/components/sello";
+import { FASE_LABEL } from "@/lib/fase-tratamiento";
 
 function formatearFecha(fecha: Date | string | null) {
   if (!fecha) return null;
@@ -15,15 +16,22 @@ export default async function PasaportePage() {
   const detalle = await obtenerRutaParaCuidador(sesion.pacienteId);
   if (!detalle) redirect("/cuidador");
 
-  const { paciente: p, pasos } = detalle;
+  const { paciente: p, rutaActiva, pasos } = detalle;
   const sellados = pasos.filter((x) => x.estado === "completado").length;
+  const faseActual = rutaActiva ? (FASE_LABEL[rutaActiva.fase] ?? rutaActiva.fase) : null;
 
   return (
     <main className="px-6 pt-8 min-h-full">
       <h1 className="font-serif text-lg mb-1">Mi pasaporte</h1>
-      <p className="text-sm text-text-muted mb-8">
+      <p className="text-sm text-text-muted mb-1">
         {p.nombre.split(" ")[0]} · {sellados} sello{sellados === 1 ? "" : "s"} de {pasos.length}
       </p>
+      {faseActual && (
+        <p className="hp-in mb-8 inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-0.5 text-xs font-medium">
+          <span aria-hidden="true">⬡</span> Fase actual: {faseActual}
+        </p>
+      )}
+      {!faseActual && <div className="mb-8" />}
 
       {pasos.length === 0 ? (
         <p className="text-sm text-text-muted italic">Todavía no hay pasos registrados.</p>

@@ -4,10 +4,12 @@ import { ingresarComoCuidador } from "@/lib/actions-cuidador";
 import { IngresoCuidadorForm } from "@/components/ingreso-cuidador-form";
 
 const ERRORES: Record<string, string> = {
-  vacio: "Escribe el código de tu pasaporte.",
+  vacio: "Escribe el código de tu pasaporte y tu DNI.",
   no_encontrado: "No encontramos ese código. Revisa tu tarjeta e intenta de nuevo.",
   es_ventanilla:
     "Ese es el código de una ventanilla del hospital, no el de tu pasaporte. Usa el código de la tarjeta que te dieron en Admisión.",
+  dni_no_coincide:
+    "Ese DNI no corresponde a ningún cuidador registrado para este paciente. Revisa el número o pide ayuda en Admisión.",
 };
 
 export default async function CuidadorEntradaPage(props: PageProps<"/cuidador">) {

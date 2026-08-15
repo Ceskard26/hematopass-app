@@ -18,13 +18,18 @@ import {
 import { notificarPaciente } from "@/lib/realtime";
 
 /**
- * Entrada del cuidador: el código del paciente (impreso en su tarjeta física
- * — el "pasaporte") es todo lo que hace falta. Sin cuenta, sin contraseña.
- * Ver docs/arquitectura.md §7.
+ * Entrada del cuidador: dos factores, ninguno es una cuenta con contraseña.
+ * El código del pasaporte (impreso en la tarjeta física) prueba que la
+ * familia ya pasó por Admisión; el DNI, verificado contra el registro que
+ * cargó el personal clínico, prueba QUIÉN de los cuidadores del paciente es
+ * quien tiene la tarjeta en la mano — el código solo no lo prueba, cualquiera
+ * que lo vea (o encuentre la tarjeta) podría usarlo. Ver docs/arquitectura.md
+ * §7.
  */
 export async function ingresarComoCuidador(formData: FormData) {
   const codigo = String(formData.get("codigo") ?? "").trim();
-  if (!codigo) redirect("/cuidador?error=vacio");
+  const dni = String(formData.get("dni") ?? "").trim();
+  if (!codigo || !dni) redirect("/cuidador?error=vacio");
 
   const p = await buscarPacientePorCodigoYCuidador(codigo);
   if (!p || p.cuidadores.length === 0) {
@@ -40,8 +45,10 @@ export async function ingresarComoCuidador(formData: FormData) {
     redirect(esVentanilla ? "/cuidador?error=es_ventanilla" : "/cuidador?error=no_encontrado");
   }
 
-  const principal = p.cuidadores.find((c) => c.esPrincipal) ?? p.cuidadores[0];
-  await crearSesionCuidador(principal.cuidadorId, p.id);
+  const vinculo = p.cuidadores.find((pc) => pc.cuidador.dni === dni);
+  if (!vinculo) redirect("/cuidador?error=dni_no_coincide");
+
+  await crearSesionCuidador(vinculo.cuidadorId, p.id);
   redirect("/cuidador/ahora");
 }
 
