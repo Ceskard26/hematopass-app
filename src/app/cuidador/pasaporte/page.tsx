@@ -106,10 +106,20 @@ export default async function PasaportePage() {
                     {sellado && paso.completadoEn
                       ? ` · ${formatearFecha(paso.completadoEn)}`
                       : ""}
+                    {/* "tengo cita programada a X día" — antes un paso pendiente solo
+                        decía "Pendiente", sin fecha; ahora muestra cuándo es. */}
+                    {!sellado && paso.programadoPara
+                      ? ` · ${paso.estado === "vencido" ? "vencía " : "programado "}${formatearFecha(paso.programadoPara)}`
+                      : ""}
                   </p>
                 </div>
                 {!sellado && (
-                  <span className="shrink-0 text-xs text-text-muted italic">Pendiente</span>
+                  <span
+                    className="shrink-0 text-xs italic"
+                    style={{ color: paso.estado === "vencido" ? "var(--status-vencido)" : "var(--surface-text-muted)" }}
+                  >
+                    {paso.estado === "vencido" ? "Vencido" : "Pendiente"}
+                  </span>
                 )}
               </li>
             );

@@ -8,6 +8,28 @@ import {
 } from "@/lib/queries-cuidador";
 import { LiveRefresher } from "@/components/live-refresher";
 
+/**
+ * "Tengo cita programada a X día y tiene que salir ahí" — pedido directo
+ * del usuario. programadoPara existía en el dato pero no se mostraba en la
+ * Tarjeta AHORA, solo el destino: la familia sabía A DÓNDE ir pero no
+ * CUÁNDO. "Hoy"/"Mañana" en vez de la fecha pelada — es más rápido de leer
+ * de un vistazo, que es el punto entero de esta pantalla.
+ */
+function formatearCuando(fecha: Date | string) {
+  const d = new Date(fecha);
+  const hoy = new Date();
+  const inicioHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+  const inicioDia = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diffDias = Math.round((inicioDia.getTime() - inicioHoy.getTime()) / 86_400_000);
+
+  const hora = d.toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit" });
+  if (diffDias === 0) return `Hoy · ${hora}`;
+  if (diffDias === 1) return `Mañana · ${hora}`;
+  if (diffDias === -1) return `Ayer · ${hora}`;
+  const fechaCorta = d.toLocaleDateString("es-PE", { day: "2-digit", month: "short" });
+  return `${fechaCorta} · ${hora}`;
+}
+
 const ICONO_TIPO: Record<string, string> = {
   consulta: "◔",
   laboratorio: "◑",
@@ -107,9 +129,27 @@ export default async function TarjetaAhoraPage() {
             Tu próximo paso
           </p>
 
-          <h1 className="hp-in font-serif text-xxl leading-[1.05] mb-6" style={{ animationDelay: "90ms" }}>
+          <h1 className="hp-in font-serif text-xxl leading-[1.05] mb-3" style={{ animationDelay: "90ms" }}>
             {pasoActual.ubicacion?.nombre ?? "—"}
           </h1>
+
+          {pasoActual.programadoPara && (
+            <p
+              className="hp-in mb-6 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold"
+              style={{
+                animationDelay: "120ms",
+                color: pasoActual.estado === "vencido" ? "var(--status-vencido)" : "var(--surface-primary)",
+                backgroundColor:
+                  pasoActual.estado === "vencido"
+                    ? "color-mix(in srgb, var(--status-vencido) 10%, transparent)"
+                    : "color-mix(in srgb, var(--surface-primary) 8%, transparent)",
+              }}
+            >
+              <span aria-hidden="true">{pasoActual.estado === "vencido" ? "▲" : "◔"}</span>
+              {pasoActual.estado === "vencido" ? "Debiste ir el " : ""}
+              {formatearCuando(pasoActual.programadoPara)}
+            </p>
+          )}
 
           <p className="hp-in text-md font-medium mb-1" style={{ animationDelay: "150ms" }}>
             {pasoActual.ubicacion?.piso}
