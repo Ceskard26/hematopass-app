@@ -167,6 +167,11 @@ async function sembrarUsuarios() {
   const passwordHash = await hash(DEMO_PASSWORD, 10);
   const staff = [
     { email: "medico@demo.hematopass.pe", nombre: "Dra. Carla Espinoza", rol: "medico" as const },
+    // Dos médicos adicionales, solo para dar variedad real a "distribución de
+    // carga" (D7) — sin login de demo propio, no son necesarios para probar
+    // el resto del flujo.
+    { email: "medico2@demo.hematopass.pe", nombre: "Dr. Luis Vargas", rol: "medico" as const },
+    { email: "medico3@demo.hematopass.pe", nombre: "Dra. Rosa Quispe", rol: "medico" as const },
     { email: "gestor@demo.hematopass.pe", nombre: "Renzo Aguilar", rol: "gestor" as const },
     { email: "ventanilla@demo.hematopass.pe", nombre: "Personal Ventanilla Farmacia", rol: "ventanilla" as const },
     { email: "admin@demo.hematopass.pe", nombre: "Admin Hematopass", rol: "admin" as const },
@@ -197,6 +202,7 @@ async function crearPacienteConCuidador(opts: {
   departamento: string;
   edadAnios: number;
   cuidadorExistente?: { id: string };
+  medicoTratanteId?: string;
 }) {
   const nombre = `${pick(NOMBRES)} ${pick(APELLIDOS)} ${pick(APELLIDOS)}`;
   const fechaNacimiento = new Date();
@@ -214,6 +220,7 @@ async function crearPacienteConCuidador(opts: {
       departamento: opts.departamento,
       esProvincia: opts.esProvincia,
       faseTratamiento: opts.dx.fase,
+      medicoTratanteId: opts.medicoTratanteId,
     })
     .returning();
 
@@ -333,7 +340,7 @@ async function sembrarCasoA(ubicaciones: { id: string; tipo: string }[], medicoI
   // Caso A — Lima, LLA en mantenimiento, ruta al día. El ciclo feliz.
   const dx = DIAGNOSTICOS[2]; // LLA mantenimiento
   const { paciente: p } = await crearPacienteConCuidador({
-    dx, esProvincia: false, departamento: "Lima", edadAnios: 7,
+    dx, esProvincia: false, departamento: "Lima", edadAnios: 7, medicoTratanteId: medicoId,
   });
   const r = await crearRuta(p.id, dx, medicoId);
 
@@ -357,7 +364,7 @@ async function sembrarCasoB(ubicaciones: { id: string; tipo: string }[], medicoI
   // Caso B — Junín, consulta en 36h, hemograma pendiente. Dispara R5.
   const dx = DIAGNOSTICOS[1]; // LLA consolidación
   const { paciente: p } = await crearPacienteConCuidador({
-    dx, esProvincia: true, departamento: "Junín", edadAnios: 5,
+    dx, esProvincia: true, departamento: "Junín", edadAnios: 5, medicoTratanteId: medicoId,
   });
   const r = await crearRuta(p.id, dx, medicoId);
 
@@ -386,7 +393,7 @@ async function sembrarCasoC(ubicaciones: { id: string; tipo: string }[], medicoI
   // Caso C — Áncash, 31 días sin actividad. Dispara R1 (definición SIOP-PODC).
   const dx = DIAGNOSTICOS[0]; // LLA inducción
   const { paciente: p } = await crearPacienteConCuidador({
-    dx, esProvincia: true, departamento: "Áncash", edadAnios: 4,
+    dx, esProvincia: true, departamento: "Áncash", edadAnios: 4, medicoTratanteId: medicoId,
   });
   const r = await crearRuta(p.id, dx, medicoId);
 
@@ -408,7 +415,7 @@ async function sembrarCasoD(ubicaciones: { id: string; tipo: string }[], medicoI
   // Caso D — Lima, 2 inasistencias consecutivas. Dispara R3.
   const dx = DIAGNOSTICOS[9]; // PTI seguimiento
   const { paciente: p } = await crearPacienteConCuidador({
-    dx, esProvincia: false, departamento: "Lima", edadAnios: 9,
+    dx, esProvincia: false, departamento: "Lima", edadAnios: 9, medicoTratanteId: medicoId,
   });
   const r = await crearRuta(p.id, dx, medicoId);
 
@@ -439,7 +446,7 @@ async function sembrarPacienteDeFondo(
   const departamento = esProvincia ? pick(DEPARTAMENTOS_PROVINCIA) : "Lima";
   const { paciente: p, cuidadorId } = await crearPacienteConCuidador({
     dx, esProvincia, departamento, edadAnios: 1 + Math.floor(Math.random() * 15),
-    cuidadorExistente,
+    cuidadorExistente, medicoTratanteId: medicoId,
   });
   const r = await crearRuta(p.id, dx, medicoId);
 
@@ -486,7 +493,12 @@ async function main() {
   await limpiar();
 
   const usuarios = await sembrarUsuarios();
-  const medicoId = usuarios.find((u) => u.rol === "medico")?.id;
+  const medicos = usuarios.filter((u) => u.rol === "medico");
+  // Los 4 casos guionados quedan con el médico de la demo (el que se usa
+  // para iniciar sesión) — así el login de siempre sigue mostrando la
+  // historia completa. Los pacientes de fondo se reparten entre los 3
+  // médicos, para que "distribución de carga" (D7) tenga variedad real.
+  const medicoId = medicos[0]?.id;
   const ubicaciones = await sembrarUbicaciones();
 
   console.log("  casos guionados (A, B, C, D)...");
@@ -505,8 +517,8 @@ async function main() {
   ].sort(() => Math.random() - 0.5);
 
   // Dos parejas de hermanos comparten cuidador — "un teléfono, varios hijos".
-  const primerHermano1 = await sembrarPacienteDeFondo(ubicaciones, distribucionProvincia[0], medicoId);
-  const primerHermano2 = await sembrarPacienteDeFondo(ubicaciones, distribucionProvincia[1], medicoId);
+  const primerHermano1 = await sembrarPacienteDeFondo(ubicaciones, distribucionProvincia[0], pick(medicos)?.id);
+  const primerHermano2 = await sembrarPacienteDeFondo(ubicaciones, distribucionProvincia[1], pick(medicos)?.id);
 
   for (let i = 2; i < distribucionProvincia.length; i++) {
     const compartirCon =
@@ -514,7 +526,7 @@ async function main() {
     await sembrarPacienteDeFondo(
       ubicaciones,
       distribucionProvincia[i],
-      medicoId,
+      pick(medicos)?.id,
       compartirCon ? { id: compartirCon.cuidadorId } : undefined
     );
   }

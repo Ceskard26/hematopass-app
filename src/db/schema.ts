@@ -102,6 +102,8 @@ export const tipoEventoEnum = pgEnum("tipo_evento", [
   "paso_reprogramado",
   "paso_no_asistio",
   "paso_nota_actualizada",
+  "paso_confirmado",
+  "termometro_registrado",
   "qr_escaneado",
   "alerta_creada",
   "alerta_resuelta",
@@ -109,6 +111,39 @@ export const tipoEventoEnum = pgEnum("tipo_evento", [
   "contacto_registrado",
   "resultado_solicitado",
   "resultado_listo",
+  "mensaje_enviado",
+  "decision_clinica_registrada",
+  "derivacion_servicio_social",
+  "preferencia_canal_actualizada",
+]);
+
+// Confirmación de asistencia del cuidador a un paso programado (P7 del
+// brief de rediseño de la app del cuidador).
+export const confirmacionAsistenciaEnum = pgEnum("confirmacion_asistencia", [
+  "si",
+  "no",
+  "sin_responder",
+]);
+
+// Termómetro emocional: caritas que el cuidador marca antes de una consulta
+// (P9). Escala de 5 puntos — el brief solo pedía "caritas", sin especificar
+// cuántas; 5 es el estándar más común en escalas de ánimo pediátricas.
+export const termometroEmocionalEnum = pgEnum("termometro_emocional", [
+  "muy_mal",
+  "mal",
+  "regular",
+  "bien",
+  "muy_bien",
+]);
+
+// Decisión clínica sobre el plan de tratamiento de una ruta (D6). Deliberadamente
+// desacoplada del motor de riesgo: registrar "derivar" aquí no dispara ninguna
+// alerta automática — son dos mecanismos distintos, uno es la decisión
+// explícita del médico, el otro es detección pasiva de riesgo.
+export const decisionClinicaEnum = pgEnum("decision_clinica", [
+  "continuar",
+  "ajustar",
+  "derivar",
 ]);
 
 // ---------------------------------------------------------------------------
@@ -142,6 +177,15 @@ export const paciente = pgTable(
     departamento: varchar("departamento", { length: 100 }).notNull(),
     esProvincia: boolean("es_provincia").notNull().default(false),
     faseTratamiento: faseTratamientoEnum("fase_tratamiento").notNull(),
+    // Médico tratante ACTUAL — distinto de ruta.creadaPor, que es histórico
+    // por ruta (quién generó ese tramo del tratamiento). Este campo es el que
+    // la familia ve en su pantalla de bienvenida ("tu médico es...") y el que
+    // alimenta la carga por profesional en el panel del doctor.
+    medicoTratanteId: uuid("medico_tratante_id").references(() => usuario.id),
+    // Presencia de fecha = derivado (mismo patrón que resueltaEn/completadoEn
+    // en otras tablas — más auditable que un booleano suelto).
+    derivadoServicioSocialEn: timestamp("derivado_servicio_social_en", { withTimezone: true }),
+    derivadoServicioSocialPor: uuid("derivado_servicio_social_por").references(() => usuario.id),
     // Dato sintético: marca explícita para la interfaz y para auditoría.
     esSintetico: boolean("es_sintetico").notNull().default(true),
     creadoEn: timestamp("creado_en", { withTimezone: true }).notNull().defaultNow(),
@@ -160,6 +204,9 @@ export const cuidador = pgTable("cuidador", {
   dni: varchar("dni", { length: 8 }),
   telefono: varchar("telefono", { length: 20 }),
   relacion: varchar("relacion", { length: 50 }).notNull(), // madre, padre, tutor...
+  // Solo se persiste la preferencia — no hay proveedor de SMS/WhatsApp
+  // integrado en este repo, envío real está fuera de alcance.
+  canalPreferido: varchar("canal_preferido", { length: 20 }).notNull().default("app"), // app | sms | whatsapp
   // Un cuidador puede acceder a la app sin cuenta médica formal: PIN simple.
   pinHash: text("pin_hash"),
   creadoEn: timestamp("creado_en", { withTimezone: true }).notNull().defaultNow(),
@@ -209,6 +256,11 @@ export const ruta = pgTable("ruta", {
   estado: estadoRutaEnum("estado").notNull().default("activa"),
   creadaPor: uuid("creada_por").references(() => usuario.id),
   creadaEn: timestamp("creada_en", { withTimezone: true }).notNull().defaultNow(),
+  // Última decisión clínica sobre este plan de tratamiento (D6). No dispara
+  // alertas del motor de riesgo — ver comentario en decisionClinicaEnum.
+  ultimaDecision: decisionClinicaEnum("ultima_decision"),
+  ultimaDecisionEn: timestamp("ultima_decision_en", { withTimezone: true }),
+  ultimaDecisionPor: uuid("ultima_decision_por").references(() => usuario.id),
 });
 
 export const paso = pgTable(
@@ -235,6 +287,15 @@ export const paso = pgTable(
     // directo del usuario: la familia quiere ver qué concluyó/recetó el
     // médico, no solo a dónde ir.
     notaMedica: text("nota_medica"),
+    // Confirmación del cuidador de que asistirá a este paso (P7).
+    confirmacionAsistencia: confirmacionAsistenciaEnum("confirmacion_asistencia")
+      .notNull()
+      .default("sin_responder"),
+    confirmadoEn: timestamp("confirmado_en", { withTimezone: true }),
+    // Caritas que el cuidador marca antes de una consulta (P9). Nullable:
+    // la mayoría de pasos nunca lo tendrán (no son pre-consulta).
+    termometroEmocional: termometroEmocionalEnum("termometro_emocional"),
+    termometroRegistradoEn: timestamp("termometro_registrado_en", { withTimezone: true }),
     creadoPor: uuid("creado_por").references(() => usuario.id),
     creadoEn: timestamp("creado_en", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -346,14 +407,56 @@ export const resultadoLab = pgTable("resultado_lab", {
 });
 
 // ---------------------------------------------------------------------------
+// Mensaje — chat de dos vías entre cuidador y equipo tratante (P8/D5)
+// ---------------------------------------------------------------------------
+
+export const mensaje = pgTable(
+  "mensaje",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    pacienteId: uuid("paciente_id")
+      .notNull()
+      .references(() => paciente.id, { onDelete: "cascade" }),
+    autorTipo: varchar("autor_tipo", { length: 20 }).notNull(), // cuidador | medico
+    // Solo uno de los dos está poblado, según autorTipo.
+    autorCuidadorId: uuid("autor_cuidador_id").references(() => cuidador.id),
+    autorUsuarioId: uuid("autor_usuario_id").references(() => usuario.id),
+    cuerpo: text("cuerpo").notNull(),
+    leidoEn: timestamp("leido_en", { withTimezone: true }),
+    creadoEn: timestamp("creado_en", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("mensaje_paciente_idx").on(t.pacienteId)]
+);
+
+// ---------------------------------------------------------------------------
 // Relaciones (para queries con `with` de Drizzle)
 // ---------------------------------------------------------------------------
 
-export const pacienteRelations = relations(paciente, ({ many }) => ({
+export const pacienteRelations = relations(paciente, ({ one, many }) => ({
   rutas: many(ruta),
   cuidadores: many(pacienteCuidador),
   alertas: many(alerta),
   resultados: many(resultadoLab),
+  mensajes: many(mensaje),
+  medicoTratante: one(usuario, {
+    fields: [paciente.medicoTratanteId],
+    references: [usuario.id],
+  }),
+}));
+
+export const mensajeRelations = relations(mensaje, ({ one }) => ({
+  paciente: one(paciente, {
+    fields: [mensaje.pacienteId],
+    references: [paciente.id],
+  }),
+  autorCuidador: one(cuidador, {
+    fields: [mensaje.autorCuidadorId],
+    references: [cuidador.id],
+  }),
+  autorUsuario: one(usuario, {
+    fields: [mensaje.autorUsuarioId],
+    references: [usuario.id],
+  }),
 }));
 
 export const resultadoLabRelations = relations(resultadoLab, ({ one }) => ({
