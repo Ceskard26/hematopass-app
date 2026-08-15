@@ -15,9 +15,14 @@ export default async function ClinicoPage() {
             {pacientes.length} en seguimiento activo · datos sintéticos
           </p>
         </div>
-        <Link href="/clinico/ubicaciones" className="text-sm text-text-muted hover:text-text underline">
-          Códigos QR de ventanillas
-        </Link>
+        <div className="flex gap-4">
+          <Link href="/clinico/tarjetas" className="text-sm text-text-muted hover:text-text underline">
+            Tarjetas de paciente
+          </Link>
+          <Link href="/clinico/ubicaciones" className="text-sm text-text-muted hover:text-text underline">
+            Códigos QR de ventanillas
+          </Link>
+        </div>
       </div>
 
       <div className="rounded-lg border border-border bg-surface-1 overflow-hidden">
