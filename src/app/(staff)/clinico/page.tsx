@@ -2,6 +2,7 @@ import Link from "next/link";
 import { listarPacientesClinico } from "@/lib/queries";
 import { EstadoBadge, type EstadoPaso } from "@/components/estado-badge";
 import { PLANTILLAS_PASO } from "@/lib/plantillas-paso";
+import { SemaforoRiesgo } from "@/components/semaforo-riesgo";
 
 export default async function ClinicoPage() {
   const pacientes = await listarPacientesClinico();
@@ -33,6 +34,7 @@ export default async function ClinicoPage() {
               <th className="px-4 py-3 font-medium">Diagnóstico</th>
               <th className="px-4 py-3 font-medium">Procedencia</th>
               <th className="px-4 py-3 font-medium">Paso actual</th>
+              <th className="px-4 py-3 font-medium">Riesgo</th>
               <th className="px-4 py-3 font-medium text-right">Pendientes</th>
             </tr>
           </thead>
@@ -69,6 +71,9 @@ export default async function ClinicoPage() {
                   ) : (
                     <span className="text-text-muted italic">Sin ruta activa</span>
                   )}
+                </td>
+                <td className="px-4 py-3">
+                  <SemaforoRiesgo nivel={p.semaforo} motivo={p.alertaMotivo} compacto />
                 </td>
                 <td className="px-4 py-3 text-right">
                   {p.vencidos > 0 ? (

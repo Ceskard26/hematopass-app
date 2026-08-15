@@ -5,6 +5,7 @@ import { EstadoBadge, type EstadoPaso } from "@/components/estado-badge";
 import { GenerarPasoPanel } from "@/components/generar-paso-panel";
 import { LiveRefresher } from "@/components/live-refresher";
 import { NotaMedicaForm } from "@/components/nota-medica-form";
+import { SemaforoRiesgo } from "@/components/semaforo-riesgo";
 
 function edadEnAnios(fechaNacimiento: string) {
   const nacimiento = new Date(fechaNacimiento);
@@ -49,7 +50,7 @@ export default async function FichaPacientePage(props: PageProps<"/clinico/[codi
   ]);
 
   if (!detalle) notFound();
-  const { paciente: p, rutaActiva } = detalle;
+  const { paciente: p, rutaActiva, semaforo, alertaMotivo } = detalle;
   const pasos = rutaActiva?.pasos ?? [];
   const resultadosPendientes = p.resultados.filter((r) => !r.listoEn);
 
@@ -72,6 +73,7 @@ export default async function FichaPacientePage(props: PageProps<"/clinico/[codi
             </p>
           )}
         </div>
+        <SemaforoRiesgo nivel={semaforo} motivo={alertaMotivo} />
       </div>
 
       {resultadosPendientes.length > 0 && (

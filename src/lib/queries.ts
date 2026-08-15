@@ -8,6 +8,11 @@ import { paso, ubicacion, evento, resultadoLab } from "@/db/schema";
  * el personal ya está autenticado y autorizado por src/proxy.ts.
  */
 
+// Sin alerta activa = verde, media = amarillo, alta/crítica = rojo (D1/D4
+// del rediseño de la app del cuidador — misma señal que el motor de riesgo,
+// traducida a semáforo).
+const ORDEN_SEVERIDAD: Record<string, number> = { critica: 3, alta: 3, media: 2 };
+
 export async function listarPacientesClinico() {
   const pacientes = await db.query.paciente.findMany({
     orderBy: (p, { asc }) => [asc(p.nombre)],
@@ -19,6 +24,9 @@ export async function listarPacientesClinico() {
             orderBy: (p, { asc }) => [asc(p.orden)],
           },
         },
+      },
+      alertas: {
+        where: (a, { inArray }) => inArray(a.estado, ["activa", "en_seguimiento"]),
       },
     },
   });
@@ -35,6 +43,16 @@ export async function listarPacientesClinico() {
     ).length;
     const vencidos = pasos.filter((x) => x.estado === "vencido").length;
 
+    const peorAlerta = p.alertas.reduce<(typeof p.alertas)[number] | null>((peor, a) => {
+      if (!peor) return a;
+      return (ORDEN_SEVERIDAD[a.severidad] ?? 1) > (ORDEN_SEVERIDAD[peor.severidad] ?? 1) ? a : peor;
+    }, null);
+    const semaforo: "verde" | "amarillo" | "rojo" = !peorAlerta
+      ? "verde"
+      : ORDEN_SEVERIDAD[peorAlerta.severidad] >= 3
+        ? "rojo"
+        : "amarillo";
+
     return {
       id: p.id,
       codigo: p.codigo,
@@ -48,6 +66,8 @@ export async function listarPacientesClinico() {
       pasoActualTitulo: pasoActual?.tituloClinico ?? null,
       pendientes,
       vencidos,
+      semaforo,
+      alertaMotivo: peorAlerta?.motivoTexto ?? null,
     };
   });
 }
@@ -70,12 +90,24 @@ export async function obtenerPacienteDetalle(codigo: string) {
         orderBy: (r, { desc }) => [desc(r.solicitadoEn)],
         limit: 5,
       },
+      alertas: {
+        where: (a, { inArray }) => inArray(a.estado, ["activa", "en_seguimiento"]),
+      },
     },
   });
 
   if (!p) return null;
 
   const rutaActiva = p.rutas.find((r) => r.estado === "activa") ?? p.rutas[0] ?? null;
+  const peorAlerta = p.alertas.reduce<(typeof p.alertas)[number] | null>((peor, a) => {
+    if (!peor) return a;
+    return (ORDEN_SEVERIDAD[a.severidad] ?? 1) > (ORDEN_SEVERIDAD[peor.severidad] ?? 1) ? a : peor;
+  }, null);
+  const semaforo: "verde" | "amarillo" | "rojo" = !peorAlerta
+    ? "verde"
+    : ORDEN_SEVERIDAD[peorAlerta.severidad] >= 3
+      ? "rojo"
+      : "amarillo";
 
   const eventos = rutaActiva
     ? await db
@@ -91,7 +123,7 @@ export async function obtenerPacienteDetalle(codigo: string) {
         .limit(20)
     : [];
 
-  return { paciente: p, rutaActiva, eventos };
+  return { paciente: p, rutaActiva, eventos, semaforo, alertaMotivo: peorAlerta?.motivoTexto ?? null };
 }
 
 export async function listarUbicaciones() {

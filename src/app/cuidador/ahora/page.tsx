@@ -177,6 +177,15 @@ export default async function TarjetaAhoraPage() {
           </Link>
         </div>
       )}
+
+      {p.esProvincia && (
+        <Link
+          href="/cuidador/alojamiento"
+          className="hp-in-fast block text-center text-sm text-text-muted underline py-4"
+        >
+          Alojamiento para tu viaje
+        </Link>
+      )}
     </main>
   );
 }

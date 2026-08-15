@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { leerSesionCuidador } from "@/lib/cuidador-session";
 import { obtenerRutaParaCuidador, resultadosDePaciente } from "@/lib/queries-cuidador";
 import { Sello } from "@/components/sello";
@@ -126,9 +127,17 @@ export default async function PasaportePage() {
                 {/* "qué me dijo/concluyó/diagnosticó el médico" — pedido directo del
                     usuario, reemplaza la regla original de no mostrar diagnóstico. */}
                 {paso.notaMedica && (
-                  <p className="mt-2.5 pl-[72px] text-sm leading-relaxed text-text-muted">
-                    <span aria-hidden="true">✎</span> “{paso.notaMedica}”
-                  </p>
+                  <>
+                    <p className="mt-2.5 pl-[72px] text-sm leading-relaxed text-text-muted">
+                      <span aria-hidden="true">✎</span> “{paso.notaMedica}”
+                    </p>
+                    <Link
+                      href={`/cuidador/resumen/${paso.id}`}
+                      className="mt-1.5 block pl-[72px] text-sm text-primary underline"
+                    >
+                      Ver resumen completo
+                    </Link>
+                  </>
                 )}
               </li>
             );
