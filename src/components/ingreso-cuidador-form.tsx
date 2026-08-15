@@ -102,14 +102,15 @@ export function IngresoCuidadorForm({
       )}
 
       {/*
-        El div SIEMPRE está montado (nunca condicional a camaraActiva):
-        html5-qrcode busca este id en el DOM al construirse, antes de que
-        la cámara arranque — si el div todavía no existe, falla siempre,
-        en cualquier navegador. Se oculta con CSS, no se desmonta.
+        El div SIEMPRE está visible, nunca display:none: html5-qrcode lee
+        el ancho/alto del contenedor al arrancar para dimensionar el video,
+        y con el contenedor oculto obtiene 0×0 y el video nunca se ve —
+        aunque el elemento ya exista en el DOM. Antes de activar la cámara
+        se ve como una caja vacía en espera, igual que en qr-scanner.tsx.
       */}
       <div
         id={ELEMENT_ID}
-        className={`w-full aspect-square rounded-lg overflow-hidden bg-surface-2 border border-border mb-3 ${camaraActiva ? "" : "hidden"}`}
+        className="w-full aspect-square rounded-lg overflow-hidden bg-surface-2 border border-border mb-3"
       />
 
       {camaraActiva ? (
