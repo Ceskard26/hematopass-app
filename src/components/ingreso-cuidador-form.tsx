@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { QrVisorOverlay } from "@/components/qr-visor";
+import { Mascota } from "@/components/mascota";
 
 const ELEMENT_ID = "hematopass-cuidador-qr-reader";
 
@@ -95,14 +96,7 @@ export function IngresoCuidadorForm({
 
   return (
     <form ref={formRef} action={accion} className="hp-in w-full max-w-sm text-center">
-      <img
-        src="/brand-badge.png"
-        alt=""
-        aria-hidden="true"
-        width={96}
-        height={96}
-        className="hp-in-pop mx-auto mb-4 h-24 w-24 rounded-full"
-      />
+      <Mascota estado="animando" size={104} className="hp-in-pop mx-auto mb-4" />
       <h1 className="font-serif text-xl mb-2">Bienvenido a Hematopass</h1>
       <p className="text-base text-text-muted leading-relaxed mb-8">
         Escribe el código de tu pasaporte (o escanea el QR de tu tarjeta) y tu

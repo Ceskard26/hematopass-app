@@ -44,16 +44,27 @@
   --surface-text-xxl: clamp(1.8rem, 1.5rem + 1.5vw, 2.25rem);
 }
 
-/* ==== Superficie CUIDADOR — derivada de la paleta "earth" + acento "sand" ==== */
+/* ==== Superficie CUIDADOR — paleta pastel + mascota ====
+   Reemplaza la paleta "earth" sobria por tonos cálidos y amigables con un
+   niño: verde agua, crema, acentos suaves — a pedido explícito del usuario,
+   como parte del rediseño de la app del cuidador. El registro clínico
+   ([data-surface="clinical"], no tocado aquí) sigue con "ocean". */
 [data-surface="caregiver"] {
-  --surface-primary: #2c3e2d;
+  --surface-primary: #2f8577;
   --surface-primary-ink: #ffffff;
-  --surface-bg: #f3efe6;
-  --surface-1: #fbf8f2;
-  --surface-2: #e9e3d4;
-  --surface-border: #ddd5c0;
-  --surface-text: #22281f;
-  --surface-text-muted: #5f6b58;
+  --surface-bg: #fdf6ec;
+  --surface-1: #fffdf9;
+  --surface-2: #eaf3ef;
+  --surface-border: #dde9e4;
+  --surface-text: #2b2a24;
+  --surface-text-muted: #6d6a5c;
+
+  /* Mascota (src/components/mascota.tsx) — solo se referencian dentro de
+     esta superficie, nunca en [data-surface="clinical"]. */
+  --mascot-body: #e8836f;
+  --mascot-face: #3a2a24;
+  --mascot-cheek: #f4a89c;
+  --mascot-highlight: #f6c667;
 
   /* Escala tipográfica del cuidador: amplia. Base 19px.
      Se usa de pie, en un pasillo, con un niño en brazos, en un celular de
