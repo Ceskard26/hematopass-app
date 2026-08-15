@@ -89,3 +89,50 @@ export async function crearPaso(input: CrearPasoInput) {
 
   return nuevoPaso;
 }
+
+/**
+ * Nota libre del médico sobre un paso — indicación, conclusión de la
+ * consulta, diagnóstico. Visible para el cuidador en su pasaporte. Decisión
+ * de producto explícita del usuario (ver comentario en src/db/schema.ts
+ * sobre paso.notaMedica).
+ */
+export async function actualizarNotaPaso(input: {
+  pasoId: string;
+  pacienteCodigo: string;
+  nota: string;
+}) {
+  const session = await auth();
+  const rol = session?.user?.rol;
+  if (!session?.user || (rol !== "medico" && rol !== "admin")) {
+    throw new Error("No autorizado para escribir notas clínicas.");
+  }
+
+  const notaLimpia = input.nota.trim() || null;
+
+  const [pasoRow] = await db
+    .select({ rutaId: paso.rutaId })
+    .from(paso)
+    .where(eq(paso.id, input.pasoId))
+    .limit(1);
+  if (!pasoRow) throw new Error("Paso no encontrado.");
+
+  await db.update(paso).set({ notaMedica: notaLimpia }).where(eq(paso.id, input.pasoId));
+
+  const [rutaRow] = await db
+    .select({ pacienteId: ruta.pacienteId })
+    .from(ruta)
+    .where(eq(ruta.id, pasoRow.rutaId))
+    .limit(1);
+
+  await db.insert(evento).values({
+    entidadTipo: "paso",
+    entidadId: input.pasoId,
+    tipo: "paso_nota_actualizada",
+    actorId: session.user.id,
+    actorRol: rol,
+    origen: "web",
+  });
+
+  revalidatePath(`/clinico/${input.pacienteCodigo}`);
+  if (rutaRow) await notificarPaciente(rutaRow.pacienteId);
+}

@@ -89,37 +89,46 @@ export default async function PasaportePage() {
             return (
               <li
                 key={paso.id}
-                className="hp-in flex items-center gap-4 rounded-lg border border-border bg-surface-1 px-4 py-3.5"
+                className="hp-in rounded-lg border border-border bg-surface-1 px-4 py-3.5"
                 style={{ animationDelay: `${Math.min(i, 10) * 45}ms` }}
               >
-                <Sello
-                  estado={sellado ? "sellado" : "vacio"}
-                  tipo={paso.tipo}
-                  ubicacion={paso.ubicacion?.nombre}
-                  semilla={paso.id}
-                  size={56}
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="text-base font-medium truncate">{paso.instruccionCuidador}</p>
-                  <p className="text-sm text-text-muted">
-                    {paso.ubicacion?.nombre}
-                    {sellado && paso.completadoEn
-                      ? ` · ${formatearFecha(paso.completadoEn)}`
-                      : ""}
-                    {/* "tengo cita programada a X día" — antes un paso pendiente solo
-                        decía "Pendiente", sin fecha; ahora muestra cuándo es. */}
-                    {!sellado && paso.programadoPara
-                      ? ` · ${paso.estado === "vencido" ? "vencía " : "programado "}${formatearFecha(paso.programadoPara)}`
-                      : ""}
-                  </p>
+                <div className="flex items-center gap-4">
+                  <Sello
+                    estado={sellado ? "sellado" : "vacio"}
+                    tipo={paso.tipo}
+                    ubicacion={paso.ubicacion?.nombre}
+                    semilla={paso.id}
+                    size={56}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-base font-medium truncate">{paso.instruccionCuidador}</p>
+                    <p className="text-sm text-text-muted">
+                      {paso.ubicacion?.nombre}
+                      {sellado && paso.completadoEn
+                        ? ` · ${formatearFecha(paso.completadoEn)}`
+                        : ""}
+                      {/* "tengo cita programada a X día" — antes un paso pendiente solo
+                          decía "Pendiente", sin fecha; ahora muestra cuándo es. */}
+                      {!sellado && paso.programadoPara
+                        ? ` · ${paso.estado === "vencido" ? "vencía " : "programado "}${formatearFecha(paso.programadoPara)}`
+                        : ""}
+                    </p>
+                  </div>
+                  {!sellado && (
+                    <span
+                      className="shrink-0 text-xs italic"
+                      style={{ color: paso.estado === "vencido" ? "var(--status-vencido)" : "var(--surface-text-muted)" }}
+                    >
+                      {paso.estado === "vencido" ? "Vencido" : "Pendiente"}
+                    </span>
+                  )}
                 </div>
-                {!sellado && (
-                  <span
-                    className="shrink-0 text-xs italic"
-                    style={{ color: paso.estado === "vencido" ? "var(--status-vencido)" : "var(--surface-text-muted)" }}
-                  >
-                    {paso.estado === "vencido" ? "Vencido" : "Pendiente"}
-                  </span>
+                {/* "qué me dijo/concluyó/diagnosticó el médico" — pedido directo del
+                    usuario, reemplaza la regla original de no mostrar diagnóstico. */}
+                {paso.notaMedica && (
+                  <p className="mt-2.5 pl-[72px] text-sm leading-relaxed text-text-muted">
+                    <span aria-hidden="true">✎</span> “{paso.notaMedica}”
+                  </p>
                 )}
               </li>
             );

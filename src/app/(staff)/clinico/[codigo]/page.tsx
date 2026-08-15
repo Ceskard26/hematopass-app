@@ -4,6 +4,7 @@ import { obtenerPacienteDetalle, listarUbicaciones } from "@/lib/queries";
 import { EstadoBadge, type EstadoPaso } from "@/components/estado-badge";
 import { GenerarPasoPanel } from "@/components/generar-paso-panel";
 import { LiveRefresher } from "@/components/live-refresher";
+import { NotaMedicaForm } from "@/components/nota-medica-form";
 
 function edadEnAnios(fechaNacimiento: string) {
   const nacimiento = new Date(fechaNacimiento);
@@ -121,6 +122,11 @@ export default async function FichaPacientePage(props: PageProps<"/clinico/[codi
                   <p className="text-xs italic text-text-muted mt-1">
                     Familia ve: “{paso.instruccionCuidador}”
                   </p>
+                  <NotaMedicaForm
+                    pasoId={paso.id}
+                    pacienteCodigo={p.codigo}
+                    notaActual={paso.notaMedica}
+                  />
                 </li>
               ))}
             </ol>

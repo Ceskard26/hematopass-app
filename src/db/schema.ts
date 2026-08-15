@@ -101,6 +101,7 @@ export const tipoEventoEnum = pgEnum("tipo_evento", [
   "paso_vencido",
   "paso_reprogramado",
   "paso_no_asistio",
+  "paso_nota_actualizada",
   "qr_escaneado",
   "alerta_creada",
   "alerta_resuelta",
@@ -227,6 +228,13 @@ export const paso = pgTable(
     programadoPara: timestamp("programado_para", { withTimezone: true }),
     venceEn: timestamp("vence_en", { withTimezone: true }),
     completadoEn: timestamp("completado_en", { withTimezone: true }),
+    // Nota libre del médico sobre este paso (indicación, conclusión de la
+    // consulta, diagnóstico) — visible para el cuidador. Decisión explícita
+    // del producto de reemplazar la regla original de "nunca mostrar
+    // diagnóstico completo" (docs/sistema-de-diseno.md §6.2), a pedido
+    // directo del usuario: la familia quiere ver qué concluyó/recetó el
+    // médico, no solo a dónde ir.
+    notaMedica: text("nota_medica"),
     creadoPor: uuid("creado_por").references(() => usuario.id),
     creadoEn: timestamp("creado_en", { withTimezone: true }).notNull().defaultNow(),
   },
