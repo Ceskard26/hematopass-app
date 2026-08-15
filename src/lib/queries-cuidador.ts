@@ -1,6 +1,6 @@
 import { and, asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { paciente, pacienteCuidador, paso, resultadoLab } from "@/db/schema";
+import { cuidador, paciente, pacienteCuidador, paso, resultadoLab } from "@/db/schema";
 
 /**
  * Capa de lectura para la app del cuidador. Toda función que recibe un
@@ -23,6 +23,16 @@ export async function pacienteEsDeCuidador(cuidadorId: string, pacienteId: strin
     )
     .limit(1);
   return !!row;
+}
+
+/**
+ * Nombre/relación del cuidador que tiene la sesión — la cookie solo guarda
+ * el id (src/lib/cuidador-session.ts), el saludo "Hola, {nombre}" necesita
+ * el dato real.
+ */
+export async function obtenerCuidador(cuidadorId: string) {
+  const [row] = await db.select().from(cuidador).where(eq(cuidador.id, cuidadorId)).limit(1);
+  return row ?? null;
 }
 
 export async function pacientesDeCuidador(cuidadorId: string) {

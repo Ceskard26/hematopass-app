@@ -6,6 +6,7 @@ import { GenerarPasoPanel } from "@/components/generar-paso-panel";
 import { LiveRefresher } from "@/components/live-refresher";
 import { NotaMedicaForm } from "@/components/nota-medica-form";
 import { SemaforoRiesgo } from "@/components/semaforo-riesgo";
+import { ContactoCuidadores } from "@/components/contacto-cuidadores";
 
 function edadEnAnios(fechaNacimiento: string) {
   const nacimiento = new Date(fechaNacimiento);
@@ -136,6 +137,13 @@ export default async function FichaPacientePage(props: PageProps<"/clinico/[codi
         </section>
 
         <aside>
+          <h2 className="text-sm font-medium text-text-muted uppercase tracking-wide mb-3">
+            Contacto
+          </h2>
+          <div className="mb-8">
+            <ContactoCuidadores cuidadores={p.cuidadores} pacienteNombre={p.nombre} />
+          </div>
+
           <h2 className="text-sm font-medium text-text-muted uppercase tracking-wide mb-3">
             Generar siguiente paso
           </h2>

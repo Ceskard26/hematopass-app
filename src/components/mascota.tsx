@@ -1,10 +1,10 @@
-"use client";
-
 /**
- * Mascota de la app del cuidador — acompaña al niño y a la familia en las
- * pantallas de bienvenida, estados vacíos y celebraciones. SVG hecho a mano,
- * sin asset externo (misma razón que sello.tsx: "cero dependencia de red
- * para renderizar", docs/sistema-de-diseno.md §8).
+ * Mascota de la app del cuidador ("Globi") — acompaña al niño y a la
+ * familia en las pantallas de bienvenida, el mapa de ruta, confirmaciones y
+ * el resumen post-consulta. Ilustraciones subidas por el usuario en
+ * /public (globi-*-remove-bg-io.*), no un SVG hecho a mano — cada estado
+ * usa el dibujo con la pose/props correctas para esa pantalla en vez de
+ * reusar una sola imagen genérica.
  *
  * Solo se usa en src/app/cuidador/* — el lado del doctor no la importa.
  * Reversa deliberadamente, solo para esta superficie, la regla original de
@@ -12,9 +12,34 @@
  * (docs/sistema-de-diseno.md §3) — por pedido explícito del usuario.
  */
 
-type Estado = "feliz" | "animando" | "celebrando";
+type Estado =
+  | "feliz" // bienvenida: saludando con un mapa enrollado — pantallas de entrada/login
+  | "animando" // aventurero: explorando con sombrero — mapa de ruta, paso en curso
+  | "celebrando" // con medalla: brazos arriba — todo al día, paso completado
+  | "calendario" // señalando un calendario — citas y recordatorios
+  | "notas" // tablero + lápiz — resumen post-consulta
+  | "aprobando" // pulgar arriba — confirmaciones
+  | "empatico"; // mano en el pecho — espera, tranquilidad, estados de alerta
 
-const OJOS_ABIERTOS = { cy: 74, r: 5.5 };
+const ARCHIVO: Record<Estado, string> = {
+  feliz: "/globi-bienvenida-remove-bg-io.png",
+  animando: "/globi-aventurero-remove-bg-io.png",
+  celebrando: "/globi-conmedalla-remove-bg-io.png",
+  calendario: "/globi-calendario-remove-bg-io.webp",
+  notas: "/globi-connotaspostconsulta-remove-bg-io.png",
+  aprobando: "/globi-dandook-remove-bg-io.png",
+  empatico: "/globi-empatico-remove-bg-io.png",
+};
+
+const ETIQUETA: Record<Estado, string> = {
+  feliz: "Globi saludando de bienvenida",
+  animando: "Globi explorando el mapa de ruta",
+  celebrando: "Globi celebrando con una medalla",
+  calendario: "Globi señalando el calendario",
+  notas: "Globi con el resumen de la consulta",
+  aprobando: "Globi aprobando con el pulgar arriba",
+  empatico: "Globi acompañando con calma",
+};
 
 export function Mascota({
   estado = "feliz",
@@ -25,83 +50,19 @@ export function Mascota({
   size?: number;
   className?: string;
 }) {
-  const etiqueta =
-    estado === "celebrando"
-      ? "Mascota celebrando"
-      : estado === "animando"
-        ? "Mascota animándote a seguir"
-        : "Mascota sonriendo";
-
   return (
     <div
       className={`inline-flex items-center justify-center shrink-0 ${className ?? ""}`}
       style={{ width: size, height: size }}
-      role="img"
-      aria-label={etiqueta}
     >
-      <svg viewBox="0 0 100 120" width={size} height={size}>
-        {/* Chispas de celebración, detrás del cuerpo */}
-        {estado === "celebrando" && (
-          <g stroke="var(--mascot-highlight)" strokeWidth={3} strokeLinecap="round">
-            <path d="M 12 20 L 12 30 M 7 25 L 17 25" />
-            <path d="M 88 15 L 88 25 M 83 20 L 93 20" />
-            <path d="M 82 55 L 82 63 M 78 59 L 86 59" />
-          </g>
-        )}
-
-        {/* Brazo levantado, detrás del cuerpo para que la mano quede al frente */}
-        {(estado === "animando" || estado === "celebrando") && (
-          <path
-            d="M 78 82 Q 94 78 92 56"
-            fill="none"
-            stroke="var(--mascot-body)"
-            strokeWidth={9}
-            strokeLinecap="round"
-          />
-        )}
-        {estado === "celebrando" && (
-          <path
-            d="M 22 82 Q 6 78 8 56"
-            fill="none"
-            stroke="var(--mascot-body)"
-            strokeWidth={9}
-            strokeLinecap="round"
-          />
-        )}
-
-        {/* Cuerpo: gota redondeada */}
-        <path
-          d="M 50 6 C 21 44 10 68 10 84 C 10 104 28 116 50 116 C 72 116 90 104 90 84 C 90 68 79 44 50 6 Z"
-          fill="var(--mascot-body)"
-        />
-
-        {/* Brillo del cuerpo */}
-        <ellipse cx="34" cy="40" rx="7" ry="11" fill="var(--mascot-highlight)" opacity={0.5} />
-
-        {/* Mejillas */}
-        <circle cx="27" cy="86" r="5" fill="var(--mascot-cheek)" opacity={0.7} />
-        <circle cx="73" cy="86" r="5" fill="var(--mascot-cheek)" opacity={0.7} />
-
-        {/* Cara */}
-        {estado === "celebrando" ? (
-          <g stroke="var(--mascot-face)" strokeWidth={3.5} strokeLinecap="round" fill="none">
-            <path d="M 32 72 Q 37 66 42 72" />
-            <path d="M 58 72 Q 63 66 68 72" />
-          </g>
-        ) : (
-          <g fill="var(--mascot-face)">
-            <circle cx="38" cy={OJOS_ABIERTOS.cy} r={OJOS_ABIERTOS.r} />
-            <circle cx="62" cy={OJOS_ABIERTOS.cy} r={OJOS_ABIERTOS.r} />
-          </g>
-        )}
-        <path
-          d={estado === "celebrando" ? "M 36 90 Q 50 102 64 90" : "M 38 88 Q 50 98 62 88"}
-          fill="none"
-          stroke="var(--mascot-face)"
-          strokeWidth={3.5}
-          strokeLinecap="round"
-        />
-      </svg>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={ARCHIVO[estado]}
+        alt={ETIQUETA[estado]}
+        width={size}
+        height={size}
+        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+      />
     </div>
   );
 }

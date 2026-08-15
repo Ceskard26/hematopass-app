@@ -58,17 +58,20 @@ export default async function ResumenPasoPage(props: PageProps<"/cuidador/resume
       </div>
 
       {paso.notaMedica && (
-        <section className="hp-in-fast mb-8 rounded-lg border border-border bg-surface-1 px-5 py-4">
-          <h2 className="text-sm font-medium text-text-muted uppercase tracking-wide mb-2">
-            Qué te dijo el equipo
-          </h2>
-          <p className="text-base leading-relaxed">{paso.notaMedica}</p>
+        <section className="hp-in-fast mb-8 rounded-lg border border-border bg-surface-1 px-5 py-4 flex items-start gap-3">
+          <Mascota estado="notas" size={44} className="shrink-0" />
+          <div>
+            <h2 className="text-sm font-medium text-text-muted uppercase tracking-wide mb-2">
+              Qué te dijo el equipo
+            </h2>
+            <p className="text-base leading-relaxed">{paso.notaMedica}</p>
+          </div>
         </section>
       )}
 
       {siguiente ? (
         <section className="hp-in-fast rounded-lg px-5 py-5 text-center" style={{ backgroundColor: "var(--surface-2)" }}>
-          <Mascota estado="animando" size={64} className="mx-auto mb-3" />
+          <Mascota estado="calendario" size={64} className="mx-auto mb-3" />
           <h2 className="text-sm font-medium text-text-muted uppercase tracking-wide mb-1">
             Tu próximo paso
           </h2>

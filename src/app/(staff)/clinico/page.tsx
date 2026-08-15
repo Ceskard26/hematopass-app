@@ -3,6 +3,7 @@ import { listarPacientesClinico } from "@/lib/queries";
 import { EstadoBadge, type EstadoPaso } from "@/components/estado-badge";
 import { PLANTILLAS_PASO } from "@/lib/plantillas-paso";
 import { SemaforoRiesgo } from "@/components/semaforo-riesgo";
+import { ContactoCuidadores } from "@/components/contacto-cuidadores";
 
 export default async function ClinicoPage() {
   const pacientes = await listarPacientesClinico();
@@ -35,6 +36,7 @@ export default async function ClinicoPage() {
               <th className="px-4 py-3 font-medium">Procedencia</th>
               <th className="px-4 py-3 font-medium">Paso actual</th>
               <th className="px-4 py-3 font-medium">Riesgo</th>
+              <th className="px-4 py-3 font-medium">Contacto</th>
               <th className="px-4 py-3 font-medium text-right">Pendientes</th>
             </tr>
           </thead>
@@ -74,6 +76,9 @@ export default async function ClinicoPage() {
                 </td>
                 <td className="px-4 py-3">
                   <SemaforoRiesgo nivel={p.semaforo} motivo={p.alertaMotivo} compacto />
+                </td>
+                <td className="px-4 py-3">
+                  <ContactoCuidadores cuidadores={p.cuidadores.slice(0, 1)} pacienteNombre={p.nombre} compacto soloIconos />
                 </td>
                 <td className="px-4 py-3 text-right">
                   {p.vencidos > 0 ? (

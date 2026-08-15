@@ -3,6 +3,7 @@ import { sincronizarAlertas } from "@/lib/risk-engine";
 import { listarAlertasActivas } from "@/lib/queries-riesgo";
 import { RegistrarContactoForm } from "@/components/registrar-contacto-form";
 import { DescartarAlertaButton } from "@/components/descartar-alerta-button";
+import { ContactoCuidadores } from "@/components/contacto-cuidadores";
 
 const SEVERIDAD_CFG: Record<string, { label: string; color: string; simbolo: string }> = {
   critica: { label: "Crítica", color: "var(--status-abandono)", simbolo: "▲▲" },
@@ -77,6 +78,10 @@ export default async function RiesgoPage() {
                   )}
                 </div>
                 <p className="text-sm mb-1">{a.motivoTexto}</p>
+
+                <div className="mb-2">
+                  <ContactoCuidadores cuidadores={a.paciente.cuidadores} pacienteNombre={a.paciente.nombre} compacto />
+                </div>
 
                 {a.contactos.length > 0 && (
                   <ul className="mb-2 space-y-0.5">

@@ -12,7 +12,7 @@ export async function listarAlertasActivas() {
   const filas = await db.query.alerta.findMany({
     where: (a, { inArray }) => inArray(a.estado, ["activa", "en_seguimiento"]),
     with: {
-      paciente: true,
+      paciente: { with: { cuidadores: { with: { cuidador: true } } } },
       contactos: {
         orderBy: (c, { desc }) => [desc(c.ocurridoEn)],
         limit: 3,

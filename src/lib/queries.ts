@@ -28,6 +28,7 @@ export async function listarPacientesClinico() {
       alertas: {
         where: (a, { inArray }) => inArray(a.estado, ["activa", "en_seguimiento"]),
       },
+      cuidadores: { with: { cuidador: true } },
     },
   });
 
@@ -68,6 +69,7 @@ export async function listarPacientesClinico() {
       vencidos,
       semaforo,
       alertaMotivo: peorAlerta?.motivoTexto ?? null,
+      cuidadores: p.cuidadores,
     };
   });
 }

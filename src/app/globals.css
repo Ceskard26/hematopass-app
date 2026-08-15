@@ -76,6 +76,21 @@
   --surface-text-lg: clamp(1.7rem, 1.4rem + 1.2vw, 2rem);
   --surface-text-xl: clamp(2.3rem, 1.8rem + 2vw, 2.75rem);
   --surface-text-xxl: clamp(3rem, 2.2rem + 3.2vw, 3.75rem);
+
+  /* Tarjetas de "estación" tipo mapa de aventura (Fase 1b, referencia del
+     usuario) — un color sólido por rol de tarjeta, nunca solo para decorar:
+     "actual" (durazno) y "siguiente" (amarillo) son los dos únicos roles
+     que existen hoy. El coral de compartir reutiliza --mascot-body a
+     propósito, para que el botón se sienta parte de la misma familia que
+     la mascota, no un color suelto nuevo. */
+  --station-current-bg: #f3c9a3;
+  --station-current-ink: #4a2f14;
+  --station-next-bg: #f6dd8e;
+  --station-next-ink: #4a3c0c;
+  --station-accent-bg: #c9e8dd;
+  --station-accent-ink: #204a3c;
+  --station-share-bg: var(--mascot-body);
+  --station-share-ink: #ffffff;
 }
 
 /* ==== Acento compartido: el naranja del sello. Igual en ambas superficies. ==== */
