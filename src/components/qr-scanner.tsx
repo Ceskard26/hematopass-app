@@ -27,20 +27,38 @@ export function QrScanner() {
   const [codigoManual, setCodigoManual] = useState("");
   const [pending, startTransition] = useTransition();
   const scannerRef = useRef<import("html5-qrcode").Html5Qrcode | null>(null);
+  // Constructor de Html5Qrcode precargado en el módulo (no en el clic) — ver
+  // el comentario dentro de iniciarCamara() sobre por qué esto importa.
+  const Html5QrcodeRef = useRef<typeof import("html5-qrcode").Html5Qrcode | null>(null);
 
   useEffect(() => {
+    import("html5-qrcode").then(({ Html5Qrcode }) => {
+      Html5QrcodeRef.current = Html5Qrcode;
+    });
     return () => {
       scannerRef.current?.stop().catch(() => {});
     };
   }, []);
 
-  async function iniciarCamara() {
+  function iniciarCamara() {
     setErrorCamara(null);
-    try {
-      const { Html5Qrcode } = await import("html5-qrcode");
-      const scanner = new Html5Qrcode(ELEMENT_ID);
-      scannerRef.current = scanner;
-      await scanner.start(
+
+    // Nada de `await` antes de pedir la cámara: en Safari/WebKit (iOS), un
+    // `await` entre el clic del usuario y getUserMedia() puede romper la
+    // asociación con el gesto y el navegador bloquea la cámara EN SILENCIO
+    // — sin diálogo de permiso, sin excepción visible. Por eso la librería
+    // se precarga en useEffect (arriba) y aquí solo se usa la referencia ya
+    // resuelta, de forma síncrona.
+    const Html5Qrcode = Html5QrcodeRef.current;
+    if (!Html5Qrcode) {
+      setErrorCamara("Todavía estamos cargando el lector. Intenta de nuevo en un segundo.");
+      return;
+    }
+
+    const scanner = new Html5Qrcode(ELEMENT_ID);
+    scannerRef.current = scanner;
+    scanner
+      .start(
         { facingMode: "environment" },
         { fps: 10, qrbox: 220 },
         (decodedText) => {
@@ -50,13 +68,15 @@ export function QrScanner() {
         () => {
           // errores de frame-a-frame (nada detectado aún): se ignoran, son normales
         }
-      );
-      setCamaraActiva(true);
-    } catch {
-      setErrorCamara(
-        "No pudimos acceder a la cámara. Usa el código manual de abajo."
-      );
-    }
+      )
+      .then(() => setCamaraActiva(true))
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error("No se pudo iniciar la cámara:", err?.name, err?.message);
+        setErrorCamara(
+          "No pudimos acceder a la cámara. Revisa el permiso de cámara del navegador, o usa el código manual de abajo."
+        );
+      });
   }
 
   function procesar(token: string) {
