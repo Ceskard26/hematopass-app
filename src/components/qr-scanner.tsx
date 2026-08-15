@@ -42,6 +42,9 @@ export function QrScanner() {
   }, []);
 
   function iniciarCamara() {
+    // Doble-tap: un segundo clic mientras start() ya está en vuelo crearía
+    // una segunda instancia de Html5Qrcode sobre el mismo elemento.
+    if (scannerRef.current) return;
     setErrorCamara(null);
 
     // Nada de `await` antes de pedir la cámara: en Safari/WebKit (iOS), un
@@ -74,6 +77,7 @@ export function QrScanner() {
       .catch((err) => {
         // eslint-disable-next-line no-console
         console.error("No se pudo iniciar la cámara:", err?.name, err?.message);
+        scannerRef.current = null; // libera el guard de doble-tap para permitir reintentar
         setErrorCamara(
           "No pudimos acceder a la cámara. Revisa el permiso de cámara del navegador, o usa el código manual de abajo."
         );
