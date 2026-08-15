@@ -28,7 +28,16 @@ export async function ingresarComoCuidador(formData: FormData) {
 
   const p = await buscarPacientePorCodigoYCuidador(codigo);
   if (!p || p.cuidadores.length === 0) {
-    redirect("/cuidador?error=no_encontrado");
+    // Confusión real y observada: el QR de una ventanilla (ubicacion.qrToken,
+    // impreso desde /clinico/ubicaciones) se escanea aquí por error en vez
+    // de en /cuidador/escanear. "No encontramos ese código" no explica el
+    // porqué — se detecta el caso específico para dar la instrucción correcta.
+    const [esVentanilla] = await db
+      .select({ id: ubicacion.id })
+      .from(ubicacion)
+      .where(eq(ubicacion.qrToken, codigo.trim()))
+      .limit(1);
+    redirect(esVentanilla ? "/cuidador?error=es_ventanilla" : "/cuidador?error=no_encontrado");
   }
 
   const principal = p.cuidadores.find((c) => c.esPrincipal) ?? p.cuidadores[0];
