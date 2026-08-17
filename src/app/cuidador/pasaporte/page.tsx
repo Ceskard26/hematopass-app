@@ -149,7 +149,12 @@ export default async function PasaportePage() {
           <p className="text-sm text-text-muted italic">{t(idioma, "todavia_no_hay_pasos")}</p>
         ) : (
           <ol className="space-y-0">
-            {pasos.map((paso, i) => {
+            {/* Orden inverso al de "pasos" (que viene cronológico, del primero
+                al último): la familia quiere ver primero lo que sigue y lo más
+                reciente, y hacia abajo lo más antiguo — pedido directo del
+                usuario. Una copia, nunca pasos.reverse() (mutaría el array
+                que también usa "sellados"/"pasoActual" arriba). */}
+            {[...pasos].reverse().map((paso, i) => {
               const nodo = estadoNodo(paso.estado, paso.id === pasoActual?.id);
               const esUltimo = i === pasos.length - 1;
               return (
