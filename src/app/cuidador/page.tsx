@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { sesionCuidadorValida } from "@/lib/cuidador-guard";
 import { ingresarComoCuidador } from "@/lib/actions-cuidador";
+import { leerIdioma } from "@/lib/idioma-cuidador";
 import { IngresoCuidadorForm } from "@/components/ingreso-cuidador-form";
 
 const ERRORES: Record<string, string> = {
@@ -23,10 +24,11 @@ export default async function CuidadorEntradaPage(props: PageProps<"/cuidador">)
   const searchParams = await props.searchParams;
   const errorKey = typeof searchParams.error === "string" ? searchParams.error : null;
   const error = errorKey ? ERRORES[errorKey] : null;
+  const idioma = await leerIdioma();
 
   return (
     <main className="flex-1 flex items-center justify-center px-6 min-h-full">
-      <IngresoCuidadorForm accion={ingresarComoCuidador} error={error} />
+      <IngresoCuidadorForm accion={ingresarComoCuidador} error={error} idioma={idioma} />
     </main>
   );
 }

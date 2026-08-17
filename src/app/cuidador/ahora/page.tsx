@@ -9,6 +9,8 @@ import {
 } from "@/lib/queries-cuidador";
 import { LiveRefresher } from "@/components/live-refresher";
 import { Mascota } from "@/components/mascota";
+import { leerIdioma } from "@/lib/idioma-cuidador";
+import { t } from "@/lib/i18n-cuidador";
 
 /**
  * "Tengo cita programada a X día y tiene que salir ahí" — pedido directo
@@ -24,11 +26,11 @@ function formatearCuando(fecha: Date | string) {
   const inicioDia = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const diffDias = Math.round((inicioDia.getTime() - inicioHoy.getTime()) / 86_400_000);
 
-  const hora = d.toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit" });
+  const hora = d.toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit", timeZone: "America/Lima" });
   if (diffDias === 0) return `Hoy · ${hora}`;
   if (diffDias === 1) return `Mañana · ${hora}`;
   if (diffDias === -1) return `Ayer · ${hora}`;
-  const fechaCorta = d.toLocaleDateString("es-PE", { day: "2-digit", month: "short" });
+  const fechaCorta = d.toLocaleDateString("es-PE", { day: "2-digit", month: "short", timeZone: "America/Lima" });
   return `${fechaCorta} · ${hora}`;
 }
 
@@ -58,11 +60,12 @@ export default async function TarjetaAhoraPage() {
   const sesion = await leerSesionCuidador();
   if (!sesion) redirect("/cuidador");
 
-  const [detalle, cuidadorActual, pacientes, viaje] = await Promise.all([
+  const [detalle, cuidadorActual, pacientes, viaje, idioma] = await Promise.all([
     obtenerRutaParaCuidador(sesion.pacienteId),
     obtenerCuidador(sesion.cuidadorId),
     pacientesDeCuidador(sesion.cuidadorId),
     evaluarViaje(sesion.pacienteId),
+    leerIdioma(),
   ]);
 
   // Paciente inexistente (cookie firmada pero obsoleta, ej. tras un reseed):
@@ -89,16 +92,16 @@ export default async function TarjetaAhoraPage() {
       <div className="hp-in flex items-start justify-between mb-1">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-primary flex items-center gap-1">
-            <span aria-hidden="true">⬡</span> Mapa de la ruta
+            <span aria-hidden="true">⬡</span> {t(idioma, "mapa_de_la_ruta")}
           </p>
-          <h1 className="font-serif text-xl mt-0.5">Hola, {nombreCuidador}</h1>
+          <h1 className="font-serif text-xl mt-0.5">{t(idioma, "hola")}, {nombreCuidador}</h1>
         </div>
         {pacientes.length > 1 ? (
           <Link
             href="/cuidador/elegir"
             className="hp-press shrink-0 mt-1 text-sm text-primary underline"
           >
-            Cambiar de hijo(a)
+            {t(idioma, "cambiar_hijo")}
           </Link>
         ) : (
           <div className="shrink-0 mt-1">
@@ -116,7 +119,7 @@ export default async function TarjetaAhoraPage() {
           {inicialPaciente}
         </span>
         <p className="text-sm text-text-muted">
-          Cuidando a <span className="font-semibold text-primary">{p.nombre}</span>
+          {t(idioma, "cuidando_a")} <span className="font-semibold text-primary">{p.nombre}</span>
         </p>
       </div>
 
@@ -153,10 +156,9 @@ export default async function TarjetaAhoraPage() {
       {!pasoActual ? (
         <div key="vacio" className="hp-in flex flex-col items-center text-center rounded-2xl bg-surface-1 shadow-sm px-6 py-8 mb-5">
           <Mascota estado="celebrando" size={140} className="hp-in-pop mb-2" />
-          <h2 className="font-serif text-lg mb-2">Todo al día</h2>
+          <h2 className="font-serif text-lg mb-2">{t(idioma, "todo_al_dia_titulo")}</h2>
           <p className="text-sm text-text-muted leading-relaxed max-w-xs">
-            No hay ningún paso pendiente ahora. Te avisamos apenas el equipo
-            médico agregue el siguiente.
+            {t(idioma, "todo_al_dia_texto")}
           </p>
         </div>
       ) : (
@@ -167,14 +169,14 @@ export default async function TarjetaAhoraPage() {
           >
             <div className="flex items-start justify-between gap-3 mb-3">
               <p className="text-xs font-bold uppercase tracking-wide opacity-80">
-                Estación actual
+                {t(idioma, "estacion_actual")}
               </p>
               <span className="text-xl shrink-0" aria-hidden="true">
                 {ICONO_TIPO[pasoActual.tipo] ?? "●"}
               </span>
             </div>
             <h2 className="font-serif text-lg leading-snug mb-2">
-              Estamos en: {pasoActual.ubicacion?.nombre ?? "—"}
+              {t(idioma, "estamos_en")} {pasoActual.ubicacion?.nombre ?? "—"}
             </h2>
             <p className="text-sm leading-relaxed mb-4 opacity-90">
               {pasoActual.instruccionCuidador}
@@ -202,7 +204,7 @@ export default async function TarjetaAhoraPage() {
               href="/cuidador/escanear"
               className="hp-press w-full min-h-12 flex items-center justify-center rounded-lg bg-black/85 text-white py-3 text-base font-semibold text-center hover:bg-black"
             >
-              Escanear código
+              {t(idioma, "escanear_codigo")}
             </Link>
           </div>
 
@@ -213,7 +215,7 @@ export default async function TarjetaAhoraPage() {
             >
               <div className="flex items-start justify-between gap-3 mb-2">
                 <p className="text-xs font-bold uppercase tracking-wide opacity-80">
-                  Sigue después
+                  {t(idioma, "sigue_despues")}
                 </p>
                 <span className="text-xl shrink-0" aria-hidden="true">
                   {ICONO_TIPO[pasoSiguiente.tipo] ?? "●"}
@@ -237,7 +239,7 @@ export default async function TarjetaAhoraPage() {
         className="hp-in hp-press flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 mt-3 mb-5 text-base font-semibold"
         style={{ backgroundColor: "var(--station-share-bg)", color: "var(--station-share-ink)" }}
       >
-        <span aria-hidden="true">◐</span> Compartir avance por WhatsApp
+        <span aria-hidden="true">◐</span> {t(idioma, "compartir_whatsapp")}
       </a>
 
       {p.esProvincia && (
@@ -247,10 +249,10 @@ export default async function TarjetaAhoraPage() {
           style={{ backgroundColor: "var(--station-accent-bg)", color: "var(--station-accent-ink)" }}
         >
           <p className="text-xs font-bold uppercase tracking-wide opacity-80 mb-1">
-            Familia de fuera de Lima
+            {t(idioma, "familia_provincia")}
           </p>
-          <h3 className="font-serif text-base mb-1">Alojamiento cerca del hospital</h3>
-          <p className="text-sm underline font-medium">Ver opciones →</p>
+          <h3 className="font-serif text-base mb-1">{t(idioma, "alojamiento_titulo")}</h3>
+          <p className="text-sm underline font-medium">{t(idioma, "ver_opciones")}</p>
         </Link>
       )}
 

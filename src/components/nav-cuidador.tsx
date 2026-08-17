@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { t, type ClaveTexto } from "@/lib/i18n-cuidador";
+import type { Idioma } from "@/lib/idioma-cuidador";
 
 const ITEMS = [
-  { href: "/cuidador/ahora", icono: "●", etiqueta: "Ahora" },
-  { href: "/cuidador/pasaporte", icono: "⬡", etiqueta: "Mapa" },
-  { href: "/cuidador/escanear", icono: "▣", etiqueta: "Escanear" },
+  { href: "/cuidador/ahora", icono: "●", clave: "nav_ahora" as ClaveTexto },
+  { href: "/cuidador/pasaporte", icono: "⬡", clave: "nav_mapa" as ClaveTexto },
+  { href: "/cuidador/escanear", icono: "▣", clave: "nav_escanear" as ClaveTexto },
 ] as const;
 
 /**
@@ -15,7 +17,7 @@ const ITEMS = [
  * indicador desliza con transform (barato, no repinta layout) hacia la
  * posición del ítem activo por índice, sin medir el DOM.
  */
-export function NavCuidador() {
+export function NavCuidador({ idioma }: { idioma: Idioma }) {
   const pathname = usePathname();
   const activo = ITEMS.findIndex((item) => pathname.startsWith(item.href));
 
@@ -41,7 +43,7 @@ export function NavCuidador() {
               <span className="text-xl transition-transform" style={esActivo ? { transform: "scale(1.12)" } : undefined} aria-hidden="true">
                 {item.icono}
               </span>
-              <span className="text-xs font-medium">{item.etiqueta}</span>
+              <span className="text-xs font-medium">{t(idioma, item.clave)}</span>
             </Link>
           );
         })}

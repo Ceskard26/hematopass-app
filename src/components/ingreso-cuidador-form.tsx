@@ -1,6 +1,8 @@
 "use client";
 
 import { Mascota } from "@/components/mascota";
+import { t } from "@/lib/i18n-cuidador";
+import type { Idioma } from "@/lib/idioma-cuidador";
 
 /**
  * Solo código + DNI en el login inicial — sin escaneo de QR aquí. El
@@ -10,17 +12,18 @@ import { Mascota } from "@/components/mascota";
 export function IngresoCuidadorForm({
   accion,
   error,
+  idioma,
 }: {
   accion: (formData: FormData) => void;
   error: string | null;
+  idioma: Idioma;
 }) {
   return (
     <form action={accion} className="hp-in w-full max-w-sm text-center">
       <Mascota estado="feliz" size={176} className="hp-in-pop mx-auto mb-2" />
-      <h1 className="font-serif text-xl mb-2">Bienvenido a Hematopass</h1>
+      <h1 className="font-serif text-xl mb-2">{t(idioma, "bienvenida_titulo")}</h1>
       <p className="text-base text-text-muted leading-relaxed mb-8">
-        Escribe el código de tu pasaporte y tu DNI. Las dos cosas confirman
-        que eres tú, no solo quien tiene la tarjeta en la mano.
+        {t(idioma, "bienvenida_texto")}
       </p>
 
       {error && (
@@ -30,7 +33,7 @@ export function IngresoCuidadorForm({
       )}
 
       <label htmlFor="dni-cuidador" className="block text-left text-sm font-medium mb-1.5">
-        Tu DNI
+        {t(idioma, "dni_label")}
       </label>
       <input
         id="dni-cuidador"
@@ -44,7 +47,7 @@ export function IngresoCuidadorForm({
       />
 
       <label htmlFor="codigo-cuidador" className="block text-left text-sm font-medium mb-1.5">
-        Código de tu pasaporte
+        {t(idioma, "codigo_label")}
       </label>
       <input
         id="codigo-cuidador"
@@ -61,7 +64,7 @@ export function IngresoCuidadorForm({
         type="submit"
         className="hp-press w-full rounded-md bg-primary text-primary-ink py-3 text-base font-semibold hover:opacity-90"
       >
-        Ingresar
+        {t(idioma, "ingresar")}
       </button>
     </form>
   );

@@ -5,6 +5,8 @@ import { obtenerRutaParaCuidador, resultadosDePaciente } from "@/lib/queries-cui
 import { Sello } from "@/components/sello";
 import { Mascota } from "@/components/mascota";
 import { FASE_LABEL } from "@/lib/fase-tratamiento";
+import { leerIdioma } from "@/lib/idioma-cuidador";
+import { t, type ClaveTexto } from "@/lib/i18n-cuidador";
 
 // Sellos de nivel ilustrados, subidos por el usuario — solo existe el de
 // nivel 2 por ahora. Los niveles sin imagen siguen con la píldora de
@@ -16,15 +18,15 @@ const NIVEL_SELLO: Partial<Record<number, string>> = {
   2: "/sellonivel2-cropped.jpg",
 };
 
-const ESTADO_RESULTADO_CFG: Record<string, { label: string; color: string }> = {
-  pendiente: { label: "En proceso", color: "var(--status-en-curso)" },
-  listo: { label: "Listo", color: "var(--status-completado)" },
-  entregado: { label: "Entregado", color: "var(--status-completado)" },
+const ESTADO_RESULTADO_CFG: Record<string, { clave: ClaveTexto; color: string }> = {
+  pendiente: { clave: "en_proceso", color: "var(--status-en-curso)" },
+  listo: { clave: "listo", color: "var(--status-completado)" },
+  entregado: { clave: "entregado", color: "var(--status-completado)" },
 };
 
 function formatearFecha(fecha: Date | string | null) {
   if (!fecha) return null;
-  return new Date(fecha).toLocaleDateString("es-PE", { day: "2-digit", month: "short" });
+  return new Date(fecha).toLocaleDateString("es-PE", { day: "2-digit", month: "short", timeZone: "America/Lima" });
 }
 
 /**
@@ -45,9 +47,10 @@ export default async function PasaportePage() {
   const sesion = await leerSesionCuidador();
   if (!sesion) redirect("/cuidador");
 
-  const [detalle, resultados] = await Promise.all([
+  const [detalle, resultados, idioma] = await Promise.all([
     obtenerRutaParaCuidador(sesion.pacienteId),
     resultadosDePaciente(sesion.pacienteId),
+    leerIdioma(),
   ]);
   if (!detalle) redirect("/cuidador");
 
@@ -56,16 +59,16 @@ export default async function PasaportePage() {
   const faseActual = rutaActiva ? (FASE_LABEL[rutaActiva.fase] ?? rutaActiva.fase) : null;
 
   const mensajeMascota = pasoActual
-    ? `¡Vamos avanzando! Ahora toca: ${pasoActual.ubicacion?.nombre ?? "el siguiente paso"}.`
+    ? `${t(idioma, "mascota_toca")} ${pasoActual.ubicacion?.nombre ?? "—"}.`
     : pasos.length > 0
-      ? "¡Completaste todos los pasos de tu ruta por ahora!"
-      : "Todavía no tenemos pasos para tu ruta.";
+      ? t(idioma, "mascota_completado")
+      : t(idioma, "mascota_sin_pasos");
 
   return (
     <main className="px-5 pt-6 min-h-full">
       <div className="hp-in flex items-center justify-between mb-1">
         <p className="text-xs font-semibold uppercase tracking-wide text-primary flex items-center gap-1">
-          <span aria-hidden="true">⬡</span> Mapa de ruta
+          <span aria-hidden="true">⬡</span> {t(idioma, "mapa_de_la_ruta")}
         </p>
         {NIVEL_SELLO[sellados] ? (
           <span className="flex items-center gap-2 rounded-full pl-1 pr-3.5 py-1" style={{ backgroundColor: "var(--color-sello-light)" }}>
@@ -78,7 +81,7 @@ export default async function PasaportePage() {
               className="h-11 w-11 rounded-full object-cover shrink-0"
             />
             <span className="text-sm font-bold" style={{ color: "var(--color-sello-ink)" }}>
-              Nivel {sellados}
+              {t(idioma, "nivel")} {sellados}
             </span>
           </span>
         ) : (
@@ -86,17 +89,17 @@ export default async function PasaportePage() {
             className="text-xs font-bold rounded-full px-3 py-1"
             style={{ backgroundColor: "var(--color-sello-light)", color: "var(--color-sello-ink)" }}
           >
-            ★ Nivel {sellados}
+            ★ {t(idioma, "nivel")} {sellados}
           </span>
         )}
       </div>
       <h1 className="hp-in font-serif text-lg mb-1">{p.nombre.split(" ")[0]}</h1>
       <p className="text-sm text-text-muted mb-1">
-        {sellados} sello{sellados === 1 ? "" : "s"} de {pasos.length}
+        {sellados} {t(idioma, "sellos_de")} {pasos.length}
       </p>
       {faseActual && (
         <p className="hp-in mb-4 inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-0.5 text-xs font-medium">
-          <span aria-hidden="true">⬡</span> Fase actual: {faseActual}
+          <span aria-hidden="true">⬡</span> {t(idioma, "fase_actual")}: {faseActual}
         </p>
       )}
       {!faseActual && <div className="mb-4" />}
@@ -109,7 +112,7 @@ export default async function PasaportePage() {
       {resultados.length > 0 && (
         <section className="mb-8">
           <h2 className="text-sm font-medium text-text-muted uppercase tracking-wide mb-3">
-            Resultados
+            {t(idioma, "resultados")}
           </h2>
           <div className="rounded-2xl bg-surface-1 shadow-sm divide-y divide-border overflow-hidden">
             {resultados.map((r) => {
@@ -129,7 +132,7 @@ export default async function PasaportePage() {
                     style={{ color: cfg.color }}
                   >
                     <span aria-hidden="true">{r.estado === "pendiente" ? "◑" : "✓"}</span>
-                    {cfg.label}
+                    {t(idioma, cfg.clave)}
                   </span>
                 </div>
               );
@@ -140,10 +143,10 @@ export default async function PasaportePage() {
 
       <div className="px-1 mb-8">
         <h2 className="text-sm font-bold uppercase tracking-wide mb-4" style={{ color: "var(--accent-sello)" }}>
-          Tu ruta
+          {t(idioma, "tu_ruta")}
         </h2>
         {pasos.length === 0 ? (
-          <p className="text-sm text-text-muted italic">Todavía no hay pasos registrados.</p>
+          <p className="text-sm text-text-muted italic">{t(idioma, "todavia_no_hay_pasos")}</p>
         ) : (
           <ol className="space-y-0">
             {pasos.map((paso, i) => {
@@ -188,11 +191,11 @@ export default async function PasaportePage() {
                           className="shrink-0 text-xs font-bold rounded-full px-2 py-0.5"
                           style={{ backgroundColor: "var(--status-en-curso)", color: "#fff" }}
                         >
-                          Activo
+                          {t(idioma, "activo")}
                         </span>
                       )}
                       {nodo === "bloqueado" && (
-                        <span className="shrink-0 text-xs italic text-text-muted">Bloqueado</span>
+                        <span className="shrink-0 text-xs italic text-text-muted">{t(idioma, "bloqueado")}</span>
                       )}
                     </div>
                     <p className="text-sm text-text-muted">
@@ -200,7 +203,7 @@ export default async function PasaportePage() {
                         ? `Completado ${formatearFecha(paso.completadoEn)}`
                         : paso.programadoPara
                           ? `${paso.estado === "vencido" ? "Vencía " : "Programado "}${formatearFecha(paso.programadoPara)}`
-                          : "Pendiente"}
+                          : t(idioma, "pendiente")}
                     </p>
                     {nodo !== "bloqueado" && (
                       <p className="text-sm text-text-muted mt-1 leading-relaxed">
@@ -218,7 +221,7 @@ export default async function PasaportePage() {
                           href={`/cuidador/resumen/${paso.id}`}
                           className="hp-press mt-1.5 inline-block text-sm text-primary underline"
                         >
-                          Ver resumen completo
+                          {t(idioma, "ver_resumen_completo")}
                         </Link>
                       </>
                     )}

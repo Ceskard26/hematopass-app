@@ -35,6 +35,7 @@ services:
     command: sh -c "pnpm exec drizzle-kit push --force && pnpm exec tsx src/db/seed.ts"
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-hematopass}:${POSTGRES_PASSWORD:-hematopass}@postgres:5432/${POSTGRES_DB:-hematopass}
+      TZ: America/Lima
     depends_on:
       postgres:
         condition: service_healthy
@@ -54,6 +55,10 @@ services:
       RISK_R2_HORAS_VENCIDO: ${RISK_R2_HORAS_VENCIDO:-48}
       RISK_R4_HORAS_RESULTADO_HUERFANO: ${RISK_R4_HORAS_RESULTADO_HUERFANO:-72}
       RISK_R5_HORAS_VIAJE: ${RISK_R5_HORAS_VIAJE:-48}
+      # Sin esto, Node formatea/calcula fechas en UTC (el reloj del
+      # contenedor) — "Hoy"/"Mañana" en la Tarjeta AHORA y los horarios
+      # mostrados quedaban 5 horas adelantados frente a la hora real de Perú.
+      TZ: America/Lima
     depends_on:
       postgres:
         condition: service_healthy
